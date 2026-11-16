@@ -128,3 +128,4 @@ code { background: var(--g-50); padding: 1px 5px; border-radius: 4px; font-size:
   .admin-nav a { white-space: nowrap; }
   .admin-bar-right { margin-left: auto; }
 }
+input[data-fff-url].is-ok { border-color: var(--g-500) !important; background: var(--g-50) !important; }

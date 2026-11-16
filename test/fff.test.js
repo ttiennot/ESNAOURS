@@ -109,3 +109,48 @@ test("réponse HTML (accès filtré) => erreur explicite", async () => {
   await assert.rejects(fff.getJson(`http://127.0.0.1:${server.address().port}`, '/api/x'), /HTTP 403/);
   server.close();
 });
+
+test('classement recalculé depuis les résultats (forfait = -1 pt)', () => {
+  const T = n => ({ short_name: n });
+  const raw = [
+    { ma_no: 1, home: T('NAOURS ES'), away: T('TALMAS AS'), home_score: 2, away_score: 0 },
+    { ma_no: 2, home: T('TALMAS AS'), away: T('BERTANGLES US'), home_score: 1, away_score: 1 },
+    { ma_no: 3, home: T('BERTANGLES US'), away: T('NAOURS ES'), home_score: 0, away_score: 3, home_is_forfeit: true },
+    { ma_no: 4, home: T('NAOURS ES'), away: T('BERTANGLES US'), home_score: null, away_score: null }
+  ];
+  const t = fff.standingsFromMatches(raw, cfg);
+  const by = Object.fromEntries(t.map(r => [r.team, r]));
+  assert.equal(t[0].team, 'NAOURS ES');
+  assert.equal(by['NAOURS ES'].points, 6);
+  assert.equal(by['NAOURS ES'].played, 2);
+  assert.equal(by['NAOURS ES'].is_us, 1);
+  assert.equal(by['BERTANGLES US'].points, 0); // nul (+1) puis forfait (-1)
+  assert.equal(by['BERTANGLES US'].forfeits, 1);
+  assert.equal(by['TALMAS AS'].goal_diff, -2);
+});
+
+test('route /resultat + classement de repli + en-têtes envoyés', async () => {
+  const seen = [];
+  const server = http.createServer((req, res) => {
+    seen.push({ url: req.url, origin: req.headers.origin, referer: req.headers.referer });
+    res.setHeader('Content-Type', 'application/ld+json');
+    if (req.url.includes('/resultat?ma_dat')) {
+      return res.end(JSON.stringify({ 'hydra:member': [
+        { ...MATCH, ma_no: 501 },
+        { ...MATCH, ma_no: 502, home: { short_name: 'AUTRE FC' }, away: { short_name: 'TALMAS AS' }, home_score: 0, away_score: 1 }
+      ] }));
+    }
+    res.statusCode = 404; res.end('{}'); // classement_journees indisponible
+  });
+  await new Promise(r => server.listen(0, r));
+  const c = { ...cfg, base: `http://127.0.0.1:${server.address().port}`, cpNo: '1', phase: '1', poule: '2' };
+  const raw = await fff.fetchPouleMatches(c);
+  const st = await fff.fetchStandings(c, raw);
+  const matches = await fff.fetchMatches(c, raw);
+  server.close();
+  assert.equal(st.source, 'calculé');
+  assert.equal(st.rows.find(r => r.team === 'TALMAS AS').played, 2);
+  assert.deepEqual(matches.map(m => m.fff_id), ['501']);
+  assert.equal(seen[0].origin, 'https://www.fff.fr');
+  assert.equal(seen[0].referer, 'https://www.fff.fr/');
+});

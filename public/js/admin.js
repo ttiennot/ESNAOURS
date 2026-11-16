@@ -148,4 +148,16 @@
     $('input[data-poule]').value = b.dataset.poule;
     $$('.team-choice').forEach(x => x.classList.toggle('is-picked', x === b));
   });
+
+  /* Réglages : extraction des identifiants depuis l'adresse de la page de la poule
+     ex. …/competition/engagement/444088-seniors-d5/phase/1/11/… */
+  const fffUrl = $('[data-fff-url]');
+  if (fffUrl) fffUrl.addEventListener('input', () => {
+    const m = fffUrl.value.match(/engagement\/(\d+)[^/]*\/phase\/(\d+)\/(\d+)/);
+    fffUrl.classList.toggle('is-ok', !!m);
+    if (!m) return;
+    $('input[data-cp]').value = m[1];
+    $('input[data-phase]').value = m[2];
+    $('input[data-poule]').value = m[3];
+  });
 })();

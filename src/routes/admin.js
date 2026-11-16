@@ -67,7 +67,7 @@ router.get('/', (req, res) => {
 /* ---------- Synchronisation FFF ---------- */
 router.post('/sync', csrf, async (req, res) => {
   const r = await syncAll();
-  flash(req, r.ok ? 'ok' : 'error', r.ok ? `Synchronisation réussie : ${r.matches} matchs et ${r.standings} équipes au classement.` : `Échec de la synchronisation : ${r.error}`);
+  flash(req, r.ok ? 'ok' : 'error', r.ok ? `Synchronisation réussie : ${r.matches} matchs et ${r.standings} équipes au classement (${r.source === 'officiel' ? 'classement officiel' : 'classement recalculé depuis les résultats'}).` : `Échec de la synchronisation : ${r.error}`);
   res.redirect(req.get('referer') && req.get('referer').includes('/admin') ? req.get('referer') : '/admin');
 });
 

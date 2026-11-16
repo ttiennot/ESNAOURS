@@ -28,7 +28,12 @@ async function syncAll() {
       return { ok: false, error: 'Synchronisation non configurée (n° de compétition et de poule manquants).' };
     }
     try {
-      const [standings, matches] = await Promise.all([fff.fetchStandings(cfg), fff.fetchMatches(cfg)]);
+      // une seule récupération des matchs de la poule, réutilisée pour le calendrier et le classement
+      const pouleMatches = await fff.fetchPouleMatches(cfg);
+      const [{ rows: standings, source }, matches] = await Promise.all([
+        fff.fetchStandings(cfg, pouleMatches),
+        fff.fetchMatches(cfg, pouleMatches)
+      ]);
       tx(() => {
         if (standings.length) {
           db.exec('DELETE FROM standings');
@@ -50,7 +55,8 @@ async function syncAll() {
       });
       setSetting('fff_last_sync', new Date().toISOString());
       setSetting('fff_last_error', '');
-      return { ok: true, standings: standings.length, matches: matches.length };
+      setSetting('fff_standings_source', source);
+      return { ok: true, standings: standings.length, matches: matches.length, source };
     } catch (e) {
       setSetting('fff_last_error', `${new Date().toLocaleString('fr-FR', { timeZone: 'Europe/Paris' })} – ${e.message}`);
       return { ok: false, error: e.message };

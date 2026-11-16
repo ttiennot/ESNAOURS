@@ -7,19 +7,32 @@
  * aux champs manquants.
  */
 
-const UA = 'ESNaours-Site/1.0 (+https://esnaours.fr)';
+/*
+ * En-têtes repris du projet Open-FFF-Stats (github.com/GeoHolz/Open-FFF-Stats) :
+ * l'API est protégée par un pare-feu qui rejette les requêtes ne ressemblant pas
+ * à celles du site fff.fr. Le User-Agent peut être remplacé via FFF_USER_AGENT.
+ */
+const HEADERS = {
+  'User-Agent': process.env.FFF_USER_AGENT || 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/128.0.0.0 Safari/537.36',
+  Accept: 'application/json, text/plain, */*',
+  'Accept-Language': 'fr-FR,fr;q=0.9,en-US;q=0.8,en;q=0.7',
+  'Sec-Fetch-Dest': 'empty',
+  'Sec-Fetch-Mode': 'cors',
+  'Sec-Fetch-Site': 'same-site',
+  Origin: 'https://www.fff.fr',
+  Referer: 'https://www.fff.fr/'
+};
 
-async function getJson(base, path, { timeout = 15000 } = {}) {
-  const url = base.replace(/\/+$/, '') + path;
-  const res = await fetch(url, {
-    headers: { Accept: 'application/json', 'User-Agent': UA },
-    signal: AbortSignal.timeout(timeout)
-  });
+async function getJson(base, path, { timeout = 20000 } = {}) {
+  const url = /^https?:/.test(path) ? path : base.replace(/\/+$/, '') + path;
+  const res = await fetch(url, { headers: HEADERS, signal: AbortSignal.timeout(timeout) });
   const type = res.headers.get('content-type') || '';
-  if (!res.ok || !type.includes('json')) {
-    throw new Error(`API FFF : HTTP ${res.status} sur ${path}${type.includes('json') ? '' : ' (réponse non JSON, accès probablement filtré)'}`);
+  const text = await res.text();
+  if (!res.ok || /^\s*<!doctype html/i.test(text) || !type.includes('json')) {
+    const shortPath = path.replace(/^https?:\/\/[^/]+/, '').split('?')[0];
+    throw new Error(`API FFF : HTTP ${res.status} sur ${shortPath}${type.includes('json') ? '' : ' (réponse non JSON : accès filtré par le pare-feu FFF)'}`);
   }
-  return res.json();
+  return JSON.parse(text);
 }
 
 function members(data) {
@@ -39,7 +52,7 @@ async function getAll(base, path, maxPages = 20) {
     const data = await getJson(base, nextPath);
     const { items, next } = members(data);
     all.push(...items);
-    if (next) nextPath = next;
+    if (next) nextPath = /^https?:/.test(next) || next.startsWith('/') ? next : '/' + next;
     else if (Array.isArray(data) && items.length >= 30) {
       page += 1;
       nextPath = path + (path.includes('?') ? '&' : '?') + 'page=' + page;
@@ -99,12 +112,20 @@ function normalizeMatch(m, cfg) {
   const terrain = m.terrain || {};
   const resu = `${m.home_resu || ''} ${m.away_resu || ''}`.toUpperCase();
   let status = null;
-  if (/\b(FO|FF|FG)\b/.test(resu)) status = 'Forfait';
-  if (m.seems_postponed === true || m.seems_postponed === 'O' || /report/i.test(String(m.status_label || ''))) status = 'Reporté';
+  const homeFf = m.home_is_forfeit === true || m.home_is_forfeit === 'O';
+  const awayFf = m.away_is_forfeit === true || m.away_is_forfeit === 'O';
+  if (homeFf || awayFf || /\b(FO|FF|FG)\b/.test(resu)) status = 'Forfait';
+  const label = String(m.status_label || '');
+  if (m.seems_postponed === true || m.seems_postponed === 'O' || /report/i.test(label)) status = 'Reporté';
+  else if (/annul|arr[eê]t/i.test(label)) status = label;
   return {
     fff_id: String(pick(m.ma_no, m.id, m['@id'], '')),
     competition: pick(m.competition && m.competition.name, cfg.competitionLabel, null),
-    round: journee.number != null ? `J${journee.number}` : pick(journee.name, null),
+    round: journee.number != null ? `J${journee.number}` : (journee.name ? String(journee.name).replace(/^journ[ée]e\s*/i, 'J') : null),
+    home_forfeit: homeFf,
+    away_forfeit: awayFf,
+    _home: home,
+    _away: away,
     date: parisDate(pick(m.date, m.match_date)),
     time: normTime(pick(m.time, m.heure)),
     home_team: teamName(home) || 'À déterminer',
@@ -159,13 +180,71 @@ function poulePath(cfg) {
   return `/api/compets/${encodeURIComponent(cfg.cpNo)}/phases/${encodeURIComponent(cfg.phase || 1)}/poules/${encodeURIComponent(cfg.poule)}`;
 }
 
-async function fetchStandings(cfg) {
-  const raw = await getAll(cfg.base, poulePath(cfg) + '/classement_journees');
-  return dedupeStandings(raw.map(s => normalizeStanding(s, cfg)).filter(r => r.team));
+/** Bornes de la saison en cours (1er juillet → 30 juin). */
+function seasonBounds(now = new Date()) {
+  const y = now.getMonth() >= 6 ? now.getFullYear() : now.getFullYear() - 1;
+  return { start: `${y}-07-01`, end: `${y + 1}-06-30` };
 }
 
-async function fetchMatches(cfg) {
-  const raw = await getAll(cfg.base, poulePath(cfg) + '/matchs');
+/** Tous les matchs de la poule : route /resultat (comme Open-FFF-Stats), sinon /matchs. */
+async function fetchPouleMatches(cfg) {
+  const { start, end } = seasonBounds();
+  try {
+    return await getAll(cfg.base, `${poulePath(cfg)}/resultat?ma_dat%5Bafter%5D=${start}&ma_dat%5Bbefore%5D=${end}`);
+  } catch {
+    return getAll(cfg.base, `${poulePath(cfg)}/matchs`);
+  }
+}
+
+/** Classement recalculé depuis les résultats (barème district : V 3, N 1, D 0, forfait -1). */
+function standingsFromMatches(rawMatches, cfg) {
+  const table = new Map();
+  const row = t => {
+    const name = teamName(t);
+    if (!table.has(name)) {
+      table.set(name, { team: name, logo: teamLogo(t), points: 0, played: 0, won: 0, drawn: 0, lost: 0, forfeits: 0,
+        goals_for: 0, goals_against: 0, goal_diff: 0, penalties: 0, is_us: isUs(t, cfg) ? 1 : 0, rank: null });
+    }
+    return table.get(name);
+  };
+  for (const raw of rawMatches) {
+    const m = normalizeMatch(raw, cfg);
+    if (!teamName(m._home) || !teamName(m._away)) continue;
+    const h = row(m._home), a = row(m._away);
+    if (m.home_score == null || m.away_score == null || m.status === 'Reporté') continue;
+    h.played++; a.played++;
+    h.goals_for += m.home_score; h.goals_against += m.away_score;
+    a.goals_for += m.away_score; a.goals_against += m.home_score;
+    if (m.home_forfeit || m.away_forfeit) {
+      if (m.home_forfeit) { h.forfeits++; h.lost++; h.points -= 1; } else { h.won++; h.points += 3; }
+      if (m.away_forfeit) { a.forfeits++; a.lost++; a.points -= 1; } else { a.won++; a.points += 3; }
+    } else if (m.home_score > m.away_score) { h.won++; h.points += 3; a.lost++; }
+    else if (m.home_score < m.away_score) { a.won++; a.points += 3; h.lost++; }
+    else { h.drawn++; a.drawn++; h.points++; a.points++; }
+  }
+  const list = [...table.values()];
+  list.forEach(r => { r.goal_diff = r.goals_for - r.goals_against; });
+  list.sort((x, y) => y.points - x.points || y.goal_diff - x.goal_diff || y.goals_for - x.goals_for || x.team.localeCompare(y.team));
+  list.forEach((r, i) => { r.rank = i + 1; });
+  return list;
+}
+
+/** Classement officiel FFF (pénalités incluses) ; à défaut, recalculé depuis les résultats. */
+async function fetchStandings(cfg, pouleMatches) {
+  try {
+    const raw = await getAll(cfg.base, poulePath(cfg) + '/classement_journees');
+    const rows = dedupeStandings(raw.map(s => normalizeStanding(s, cfg)).filter(r => r.team));
+    if (rows.length) return { rows, source: 'officiel' };
+  } catch { /* repli sur le calcul */ }
+  return { rows: standingsFromMatches(pouleMatches || await fetchPouleMatches(cfg), cfg), source: 'calculé' };
+}
+
+async function fetchMatches(cfg, pouleMatches) {
+  let raw = pouleMatches;
+  if (!raw && cfg.clubId) {
+    try { raw = await getAll(cfg.base, `${poulePath(cfg)}/matchs?clNo=${encodeURIComponent(cfg.clubId)}`); } catch { raw = null; }
+  }
+  if (!raw) raw = await fetchPouleMatches(cfg);
   return raw.map(m => normalizeMatch(m, cfg)).filter(m => m.involves_us);
 }
 
@@ -194,5 +273,5 @@ async function fetchClubTeams(cfg) {
 module.exports = {
   getJson, members, getAll,
   normalizeMatch, normalizeStanding, dedupeStandings,
-  fetchStandings, fetchMatches, fetchClubTeams, parisDate, normTime
+  fetchStandings, fetchMatches, fetchPouleMatches, fetchClubTeams, standingsFromMatches, seasonBounds, parisDate, normTime
 };

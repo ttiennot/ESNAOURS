@@ -17,13 +17,16 @@ Site officiel de l'équipe Seniors de l'**ES Naours** (District de la Somme, Dé
 
 Les données viennent de l'**API FFF « DOFA »** (`api-dofa.fff.fr`), qui alimente l'appli myFFF et les sites des districts. Le serveur synchronise toutes les 30 minutes et stocke les données localement : si l'API est momentanément indisponible, le site continue d'afficher les dernières données connues.
 
-Configuration dans **Admin → Réglages → Synchronisation FFF** :
-1. Saisir le **n° de club FFF** de l'ES Naours, puis cliquer sur **« Rechercher les équipes du club »**.
-2. Cliquer sur l'engagement **Seniors / D5** : n° de compétition, phase et poule se remplissent.
-3. Enregistrer, puis **Synchroniser maintenant** depuis le tableau de bord.
+Fonctionnement, sur le modèle du projet [Open-FFF-Stats](https://github.com/GeoHolz/Open-FFF-Stats) :
+- les requêtes envoient les mêmes en-têtes que le site fff.fr (`Origin`/`Referer: https://www.fff.fr`, User-Agent de navigateur), sans quoi le pare-feu de l'API répond par une erreur 403. Le User-Agent peut être changé avec la variable `FFF_USER_AGENT` dans `.env` ;
+- calendrier : route `…/poules/{poule}/resultat` (saison en cours), avec `…/matchs` en secours ;
+- classement : classement officiel (`classement_journees`, pénalités comprises). S'il est indisponible, il est **recalculé depuis les résultats** (victoire 3, nul 1, défaite 0, forfait -1). Le tableau de bord indique la source utilisée.
 
-> Les identifiants se trouvent aussi dans l'adresse de la page de la poule sur `epreuves.fff.fr` :
-> `…/competition/engagement/<CP_NO>-…/phase/<PHASE>/<POULE>-…`
+Configuration dans **Admin → Réglages → Synchronisation FFF** :
+1. **Le plus simple :** coller l'adresse de la page de la poule (`epreuves.fff.fr` ou `somme.fff.fr`), par exemple `…/competition/engagement/444088-…/phase/1/11/…`. N° de compétition, phase et poule se remplissent tout seuls.
+2. Ou bien : saisir le **n° de club FFF**, cliquer sur **« Rechercher les équipes du club »** et choisir l'engagement **Seniors / D5**.
+3. Renseigner le **n° de club** dans tous les cas : il sert à reconnaître l'ES Naours dans les matchs.
+4. Enregistrer, puis **Synchroniser maintenant** depuis le tableau de bord.
 
 **Solution de secours :** si l'API refuse l'accès depuis le serveur (elle filtre certains hébergeurs), on peut saisir les matchs (*Matchs → + Match manuel*) et le classement (*Classement*) dans l'admin. Un match peut aussi être **verrouillé 🔒** pour que la synchro ne l'écrase pas. Les matchs de coupe et les matchs amicaux se saisissent toujours à la main.
 

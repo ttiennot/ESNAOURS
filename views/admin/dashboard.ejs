@@ -21,6 +21,7 @@
       <p class="flash flash--error">Non configurée. Renseigne les identifiants FFF dans <a href="/admin/reglages#fff">Réglages</a>.</p>
     <% } else { %>
       <p>Dernière synchro réussie : <strong><%= settings.fff_last_sync ? h.fmtDateTime(settings.fff_last_sync) : 'jamais' %></strong></p>
+      <% if (settings.fff_standings_source) { %><p>Classement : <strong><%= settings.fff_standings_source === 'officiel' ? 'officiel FFF' : 'recalculé depuis les résultats' %></strong></p><% } %>
       <p>Automatique : <strong><%= settings.fff_auto_sync === '1' ? 'oui, toutes les 30 min' : 'désactivée' %></strong></p>
     <% } %>
     <% if (settings.fff_last_error) { %><p class="flash flash--error small">Dernière erreur : <%= settings.fff_last_error %></p><% } %>
