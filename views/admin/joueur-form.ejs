@@ -1,0 +1,53 @@
+<%- include('_top') %>
+<div class="admin-head"><h1><%= p.id ? 'Modifier ' + p.first_name + ' ' + p.last_name : 'Nouveau joueur' %></h1><a href="/admin/joueurs">← Retour</a></div>
+<form class="panel form" method="post" action="/admin/joueurs/save" enctype="multipart/form-data">
+  <input type="hidden" name="_csrf" value="<%= csrf %>">
+  <% if (p.id) { %><input type="hidden" name="id" value="<%= p.id %>"><% } %>
+  <div class="form-photo">
+    <img src="<%= p.photo || '/static/img/player.svg' %>" alt="" data-preview="photo">
+    <label class="btn btn--ghost">📷 Choisir une photo<input type="file" name="photo" accept="image/*" hidden data-preview-input="photo"></label>
+    <% if (p.photo) { %><label class="check"><input type="checkbox" name="remove_photo"> Supprimer la photo</label><% } %>
+    <p class="muted small">Format portrait conseillé. La photo est recadrée automatiquement.</p>
+  </div>
+  <div class="form-grid">
+    <label>Prénom *<input name="first_name" value="<%= p.first_name || '' %>" required></label>
+    <label>Nom *<input name="last_name" value="<%= p.last_name || '' %>" required></label>
+    <label>Surnom<input name="nickname" value="<%= p.nickname || '' %>" placeholder="Affiché sur la compo"></label>
+    <label>Numéro<input type="number" name="number" min="0" max="99" value="<%= p.number ?? '' %>"></label>
+    <label>Catégorie
+      <select name="position"><% Object.entries(h.POSITIONS).forEach(([k, v]) => { %><option value="<%= k %>"<%= p.position === k ? ' selected' : '' %>><%= v.single %></option><% }) %></select>
+    </label>
+    <label>Poste précis / fonction<input name="role" value="<%= p.role || '' %>" placeholder="Latéral droit, Entraîneur…"></label>
+    <label>Date de naissance<input type="date" name="birth_date" value="<%= p.birth_date || '' %>"></label>
+    <label>Taille (cm)<input type="number" name="height" min="100" max="230" value="<%= p.height ?? '' %>"></label>
+    <label>Pied fort
+      <select name="foot"><option value=""></option><% ['Droit', 'Gauche', 'Les deux'].forEach(f => { %><option<%= p.foot === f ? ' selected' : '' %>><%= f %></option><% }) %></select>
+    </label>
+    <label>Au club depuis<input name="joined" value="<%= p.joined || '' %>" placeholder="2019"></label>
+    <label>Ancien club<input name="previous_club" value="<%= p.previous_club || '' %>"></label>
+    <label>Ordre d'affichage<input type="number" name="sort_order" value="<%= p.sort_order || 0 %>"></label>
+  </div>
+  <fieldset class="form-grid form-grid--stats">
+    <legend>Statistiques de la saison</legend>
+    <label>Matchs<input type="number" min="0" name="matches" value="<%= p.matches || 0 %>"></label>
+    <label>Buts<input type="number" min="0" name="goals" value="<%= p.goals || 0 %>"></label>
+    <label>Passes déc.<input type="number" min="0" name="assists" value="<%= p.assists || 0 %>"></label>
+    <label>Cartons jaunes<input type="number" min="0" name="yellow_cards" value="<%= p.yellow_cards || 0 %>"></label>
+    <label>Cartons rouges<input type="number" min="0" name="red_cards" value="<%= p.red_cards || 0 %>"></label>
+  </fieldset>
+  <label>Présentation / anecdotes <span class="muted small">(**gras**, listes avec -)</span><textarea name="bio" rows="5"><%= p.bio || '' %></textarea></label>
+  <div class="checks">
+    <label class="check"><input type="checkbox" name="is_captain"<%= p.is_captain ? ' checked' : '' %>> Capitaine</label>
+    <label class="check"><input type="checkbox" name="active"<%= p.active ? ' checked' : '' %>> Visible sur le site</label>
+  </div>
+  <div class="form-actions">
+    <button class="btn">Enregistrer</button>
+    <% if (!p.id) { %><button class="btn btn--ghost" name="again" value="1">Enregistrer et ajouter un autre</button><% } %>
+  </div>
+</form>
+<% if (p.id) { %>
+<form method="post" action="/admin/joueurs/<%= p.id %>/delete" data-confirm="Supprimer définitivement ce joueur ?" class="danger-zone">
+  <input type="hidden" name="_csrf" value="<%= csrf %>"><button class="btn btn--danger">Supprimer le joueur</button>
+</form>
+<% } %>
+<%- include('_bottom') %>

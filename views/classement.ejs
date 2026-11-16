@@ -1,0 +1,15 @@
+<%- include('partials/header') %>
+<section class="page-head"><div class="wrap"><span class="eyebrow"><%= settings.competition_label %></span><h1>Classement</h1></div></section>
+<div class="wrap page">
+  <div class="card">
+    <% if (standings.length) { %>
+      <%- include('partials/standings', { rows: standings, full: true }) %>
+      <div class="legend">
+        <span>Pts : points · J : joués · G/N/P : gagnés/nuls/perdus · F : forfaits · BP/BC : buts pour/contre</span>
+        <% if (form.length) { %><span class="form">Forme ES Naours : <% form.forEach(o => { %><span class="pill pill--<%= o %>"><%= o %></span><% }) %></span><% } %>
+      </div>
+      <% if (settings.fff_last_sync) { %><p class="muted small">Mis à jour le <%= h.fmtDateTime(settings.fff_last_sync) %> depuis la FFF.</p><% } %>
+    <% } else { %><p class="empty">Le classement n'est pas encore disponible.</p><% } %>
+  </div>
+</div>
+<%- include('partials/footer') %>

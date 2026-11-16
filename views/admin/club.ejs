@@ -1,0 +1,23 @@
+<%- include('_top') %>
+<div class="admin-head"><h1>Infos club</h1><a href="/club" target="_blank">Voir la page ↗</a></div>
+<p class="muted small">Ces rubriques s'affichent sur la page « Le club ». Mise en forme : **gras**, *italique*, listes avec « - ». Ordre : plus petit = plus haut.</p>
+<form class="form" method="post" action="/admin/club" id="club-form">
+  <input type="hidden" name="_csrf" value="<%= csrf %>">
+  <% sections.forEach(s => { %>
+    <div class="panel section-edit">
+      <input type="hidden" name="id" value="<%= s.id %>">
+      <div class="form-grid form-grid--title"><label>Titre<input name="title" value="<%= s.title %>"></label><label>Ordre<input type="number" name="sort_order" value="<%= s.sort_order %>" class="w-xs"></label></div>
+      <label>Contenu<textarea name="body" rows="5"><%= s.body || '' %></textarea></label>
+      <button type="submit" form="del-<%= s.id %>" class="linkish danger">Supprimer cette rubrique</button>
+    </div>
+  <% }) %>
+  <div class="panel section-edit section-edit--new">
+    <input type="hidden" name="id" value="new">
+    <h2>+ Nouvelle rubrique</h2>
+    <div class="form-grid form-grid--title"><label>Titre<input name="title" placeholder="Ex. Partenaires"></label><label>Ordre<input type="number" name="sort_order" value="<%= sections.length + 1 %>" class="w-xs"></label></div>
+    <label>Contenu<textarea name="body" rows="4"></textarea></label>
+  </div>
+  <div class="form-actions sticky-actions"><button class="btn">Enregistrer tout</button></div>
+</form>
+<% sections.forEach(s => { %><form id="del-<%= s.id %>" method="post" action="/admin/club/<%= s.id %>/delete" data-confirm="Supprimer la rubrique « <%= s.title %> » ?"><input type="hidden" name="_csrf" value="<%= csrf %>"></form><% }) %>
+<%- include('_bottom') %>

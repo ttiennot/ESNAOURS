@@ -1,0 +1,34 @@
+<%- include('partials/header') %>
+<div class="wrap page">
+  <a class="back" href="/effectif">← Retour à l'effectif</a>
+  <article class="player-detail card">
+    <div class="pd-photo">
+      <img src="<%= p.photo || '/static/img/player.svg' %>" alt="<%= p.first_name %> <%= p.last_name %>">
+      <% if (p.number) { %><span class="pc-num pc-num--lg"><%= p.number %></span><% } %>
+    </div>
+    <div class="pd-body">
+      <span class="eyebrow eyebrow--dark"><%= p.role || h.POSITIONS[p.position].single %><%= p.is_captain ? ' · Capitaine' : '' %></span>
+      <h1><%= p.first_name %> <span><%= p.last_name %></span></h1>
+      <% if (p.nickname) { %><p class="muted">« <%= p.nickname %> »</p><% } %>
+      <dl class="facts">
+        <% const a = h.age(p.birth_date); %>
+        <% if (a) { %><div><dt>Âge</dt><dd><%= a %> ans</dd></div><% } %>
+        <% if (p.height) { %><div><dt>Taille</dt><dd><%= (p.height / 100).toFixed(2).replace('.', ',') %> m</dd></div><% } %>
+        <% if (p.foot) { %><div><dt>Pied</dt><dd><%= p.foot %></dd></div><% } %>
+        <% if (p.joined) { %><div><dt>Au club depuis</dt><dd><%= p.joined %></dd></div><% } %>
+        <% if (p.previous_club) { %><div><dt>Ancien club</dt><dd><%= p.previous_club %></dd></div><% } %>
+      </dl>
+      <% if (p.position !== 'STAFF') { %>
+      <div class="stats">
+        <div><b><%= p.matches %></b><span>Matchs</span></div>
+        <div><b><%= p.goals %></b><span>Buts</span></div>
+        <div><b><%= p.assists %></b><span>Passes D.</span></div>
+        <div><b><%= p.yellow_cards %></b><span>🟨</span></div>
+        <div><b><%= p.red_cards %></b><span>🟥</span></div>
+      </div>
+      <% } %>
+      <% if (p.bio) { %><div class="prose"><%- h.md(p.bio) %></div><% } %>
+    </div>
+  </article>
+</div>
+<%- include('partials/footer') %>

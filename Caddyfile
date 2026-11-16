@@ -1,0 +1,12 @@
+# HTTPS automatique (Let's Encrypt) pour esnaours.fr
+esnaours.fr {
+	encode zstd gzip
+	request_body {
+		max_size 200MB
+	}
+	reverse_proxy app:3000
+}
+
+www.esnaours.fr {
+	redir https://esnaours.fr{uri} permanent
+}

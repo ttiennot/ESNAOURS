@@ -1,0 +1,22 @@
+<%- include('partials/header') %>
+<section class="page-head"><div class="wrap"><span class="eyebrow"><%= settings.competition_label %></span><h1>Calendrier &amp; résultats</h1></div></section>
+<div class="wrap page">
+  <% if (!matches.length) { %>
+    <div class="card"><p class="empty">Le calendrier n'est pas encore disponible.</p></div>
+  <% } else {
+    const played = matches.filter(m => m.home_score != null);
+    const toPlay = matches.filter(m => m.home_score == null);
+    const tally = { V: 0, N: 0, D: 0 }; played.forEach(m => { const o = h.outcome(m); if (o) tally[o]++; });
+  %>
+    <div class="tabs" role="tablist" data-tabs>
+      <button role="tab" aria-selected="true" data-tab="all">Tous (<%= matches.length %>)</button>
+      <button role="tab" aria-selected="false" data-tab="next">À venir (<%= toPlay.length %>)</button>
+      <button role="tab" aria-selected="false" data-tab="done">Résultats (<%= played.length %>)</button>
+    </div>
+    <% if (played.length) { %><p class="tally"><span class="pill pill--V">V</span> <%= tally.V %> <span class="pill pill--N">N</span> <%= tally.N %> <span class="pill pill--D">D</span> <%= tally.D %></p><% } %>
+    <div class="card"><div class="match-list" data-tab-panel>
+      <% matches.forEach(m => { %><div data-kind="<%= m.home_score != null ? 'done' : 'next' %>"><%- include('partials/match-row', { m }) %></div><% }) %>
+    </div></div>
+  <% } %>
+</div>
+<%- include('partials/footer') %>

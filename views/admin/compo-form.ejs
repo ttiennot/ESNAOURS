@@ -1,0 +1,54 @@
+<%- include('_top') %>
+<div class="admin-head">
+  <h1>Composition</h1>
+  <a href="/admin/matchs">← Matchs</a>
+</div>
+<p class="big"><strong><%= m.home_team %></strong> – <strong><%= m.away_team %></strong> · <%= h.fmtDate(m.date, { long: true }) %><%= m.time ? ' à ' + m.time : '' %></p>
+<% if (!players.length) { %><p class="flash flash--error">Ajoute d'abord des joueurs dans <a href="/admin/joueurs">l'effectif</a>.</p><% } %>
+<form class="compo-editor" method="post" action="/admin/compo/<%= m.id %>">
+  <input type="hidden" name="_csrf" value="<%= csrf %>">
+  <div class="panel compo-pitch-panel">
+    <label class="inline">Système
+      <select name="formation" data-formation>
+        <% Object.keys(FORMATIONS).forEach(f => { %><option<%= l.formation === f ? ' selected' : '' %>><%= f %></option><% }) %>
+      </select>
+    </label>
+    <div class="pitch pitch--editor" data-pitch>
+      <div class="pitch-lines"><span class="pl-box pl-box--top"></span><span class="pl-box pl-box--bottom"></span><span class="pl-circle"></span><span class="pl-half"></span></div>
+      <% (FORMATIONS[l.formation] || FORMATIONS['4-4-2']).forEach((s, i) => { %>
+        <div class="slot" style="left:<%= s.x %>%;top:<%= s.y %>%" data-slot="<%= i %>">
+          <span class="slot-label"><%= s.label %></span>
+          <select name="slots" data-pick>
+            <option value="">—</option>
+            <% Object.entries(h.POSITIONS).filter(([k]) => k !== 'STAFF').forEach(([k, g]) => { const list = players.filter(p => p.position === k); if (!list.length) return; %>
+              <optgroup label="<%= g.label %>"><% list.forEach(p => { %><option value="<%= p.id %>"<%= l.slots[i] === p.id ? ' selected' : '' %>><%= p.number ? p.number + '. ' : '' %><%= p.first_name[0] %>. <%= p.last_name %></option><% }) %></optgroup>
+            <% }) %>
+          </select>
+        </div>
+      <% }) %>
+    </div>
+  </div>
+  <div class="panel compo-side">
+    <h2>Remplaçants</h2>
+    <div class="subs-pick" data-subs>
+      <% players.forEach(p => { %>
+        <label class="check"><input type="checkbox" name="subs" value="<%= p.id %>"<%= l.subs.includes(p.id) ? ' checked' : '' %>> <%= p.number ? p.number + '. ' : '' %><%= p.first_name %> <%= p.last_name %> <span class="muted small"><%= h.POSITIONS[p.position].single %></span></label>
+      <% }) %>
+    </div>
+    <label>Capitaine
+      <select name="captain_id"><option value="">—</option><% players.forEach(p => { %><option value="<%= p.id %>"<%= (l.captain_id ? l.captain_id === p.id : p.is_captain) ? ' selected' : '' %>><%= p.first_name %> <%= p.last_name %></option><% }) %></select>
+    </label>
+    <label>Rendez-vous<input name="meeting" value="<%= l.meeting || '' %>" placeholder="13h30 au stade de Naours"></label>
+    <label>Mot du coach / consignes<textarea name="notes" rows="4"><%= l.notes || '' %></textarea></label>
+    <label class="check check--big"><input type="checkbox" name="published"<%= l.published ? ' checked' : '' %>> Publier sur le site</label>
+    <div class="form-actions"><button class="btn">Enregistrer</button><a class="btn btn--ghost" href="/match/<%= m.id %>" target="_blank">Aperçu ↗</a></div>
+    <p class="muted small" data-count></p>
+  </div>
+</form>
+<% if (l.match_id) { %>
+<form method="post" action="/admin/compo/<%= m.id %>/delete" data-confirm="Supprimer cette composition ?" class="danger-zone">
+  <input type="hidden" name="_csrf" value="<%= csrf %>"><button class="btn btn--danger">Supprimer la compo</button>
+</form>
+<% } %>
+<script type="application/json" id="formations-data"><%- JSON.stringify(FORMATIONS) %></script>
+<%- include('_bottom') %>

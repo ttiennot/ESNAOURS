@@ -1,0 +1,26 @@
+<%- include('_top') %>
+<div class="admin-head"><h1>Classement</h1>
+  <form method="post" action="/admin/sync"><input type="hidden" name="_csrf" value="<%= csrf %>"><button class="btn btn--ghost">🔄 Synchro FFF</button></form>
+</div>
+<p class="flash flash--info">Le classement est normalement mis à jour automatiquement depuis la FFF. Cette saisie manuelle sert de secours (si l'API est indisponible) ; elle sera remplacée par la prochaine synchro réussie.</p>
+<form class="panel" method="post" action="/admin/classement">
+  <input type="hidden" name="_csrf" value="<%= csrf %>">
+  <div class="table-wrap">
+  <table class="admin-table admin-table--edit" data-rows>
+    <thead><tr><th>#</th><th>Équipe</th><th>Pts</th><th>J</th><th>G</th><th>N</th><th>P</th><th>F</th><th>BP</th><th>BC</th><th>Pén.</th><th title="C'est nous">Nous</th><th></th></tr></thead>
+    <tbody>
+    <% const rows = standings.length ? standings : Array.from({ length: 10 }, (_, i) => ({ rank: i + 1 })); rows.forEach((r, i) => { %>
+      <tr>
+        <td><input type="number" name="rank" value="<%= r.rank ?? '' %>" class="w-xs"></td>
+        <td><input name="team" value="<%= r.team || '' %>"><input type="hidden" name="logo" value="<%= r.logo || '' %>"></td>
+        <% ['points', 'played', 'won', 'drawn', 'lost', 'forfeits', 'goals_for', 'goals_against', 'penalties'].forEach(k => { %><td><input type="number" name="<%= k %>" value="<%= r[k] ?? '' %>" class="w-xs"></td><% }) %>
+        <td><input type="radio" name="is_us" value="<%= i %>"<%= r.is_us ? ' checked' : '' %>></td>
+        <td><button type="button" class="linkish" data-del-row>✕</button></td>
+      </tr>
+    <% }) %>
+    </tbody>
+  </table>
+  </div>
+  <div class="form-actions"><button type="button" class="btn btn--ghost" data-add-row>+ Ligne</button><button class="btn">Enregistrer</button></div>
+</form>
+<%- include('_bottom') %>

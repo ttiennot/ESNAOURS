@@ -1,0 +1,24 @@
+</main>
+<footer class="site-footer">
+  <div class="wrap footer-inner">
+    <div class="footer-brand">
+      <img src="<%= settings.logo || '/static/img/crest.svg' %>" alt="" width="44">
+      <div><strong><%= settings.club_name %></strong><br><span><%= settings.competition_label %></span></div>
+    </div>
+    <div class="footer-col">
+      <% if (settings.stadium) { %><div>📍 <%= settings.stadium %></div><% } %>
+      <% if (settings.address) { %><div><%= settings.address %></div><% } %>
+      <% if (settings.email) { %><div>✉️ <a href="mailto:<%= settings.email %>"><%= settings.email %></a></div><% } %>
+      <% if (settings.phone) { %><div>📞 <a href="tel:<%= settings.phone.replace(/\s/g, '') %>"><%= settings.phone %></a></div><% } %>
+    </div>
+    <div class="footer-col footer-social">
+      <% if (settings.facebook) { %><a href="<%= settings.facebook %>" rel="noopener" target="_blank">Facebook</a><% } %>
+      <% if (settings.instagram) { %><a href="<%= settings.instagram %>" rel="noopener" target="_blank">Instagram</a><% } %>
+      <a href="/admin" class="footer-admin">Espace dirigeants</a>
+    </div>
+  </div>
+  <div class="wrap footer-note">Résultats et classement : données officielles FFF, mises à jour automatiquement.</div>
+</footer>
+<script src="/static/js/main.js?v=1" defer></script>
+</body>
+</html>

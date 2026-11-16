@@ -1,0 +1,23 @@
+<%- include('_top') %>
+<div class="admin-head"><h1>Effectif</h1><a class="btn" href="/admin/joueurs/new">+ Ajouter</a></div>
+<% if (!players.length) { %><p class="panel muted">Aucun joueur. Commence par ajouter l'effectif !</p><% } else { %>
+<div class="panel table-wrap">
+<table class="admin-table">
+  <thead><tr><th></th><th>N°</th><th>Nom</th><th>Poste</th><th>M</th><th>Buts</th><th>PD</th><th>Statut</th><th></th></tr></thead>
+  <tbody>
+  <% players.forEach(p => { %>
+    <tr class="<%= p.active ? '' : 'is-off' %>">
+      <td><img class="thumb-round" src="<%= p.photo || '/static/img/player.svg' %>" alt=""></td>
+      <td><%= p.number || '' %></td>
+      <td><a href="/admin/joueurs/<%= p.id %>"><strong><%= p.last_name %></strong> <%= p.first_name %></a><%= p.is_captain ? ' (C)' : '' %></td>
+      <td><%= h.POSITIONS[p.position].single %><%= p.role ? ' · ' + p.role : '' %></td>
+      <td><%= p.matches %></td><td><%= p.goals %></td><td><%= p.assists %></td>
+      <td><%= p.active ? 'Actif' : 'Masqué' %></td>
+      <td class="actions"><a href="/admin/joueurs/<%= p.id %>">Modifier</a></td>
+    </tr>
+  <% }) %>
+  </tbody>
+</table>
+</div>
+<% } %>
+<%- include('_bottom') %>

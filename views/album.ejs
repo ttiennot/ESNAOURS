@@ -1,0 +1,24 @@
+<%- include('partials/header') %>
+<section class="page-head"><div class="wrap">
+  <a class="back back--light" href="/photos">← Photothèque</a>
+  <h1><%= album.title %></h1>
+  <p class="page-sub"><%= album.date ? h.fmtDate(album.date, { long: true, year: true }) : '' %><% if (album.home_score != null) { %> · Score : <%= album.home_score %> – <%= album.away_score %><% } %><% if (album.match_id) { %> · <a href="/match/<%= album.match_id %>">Fiche du match</a><% } %></p>
+</div></section>
+<div class="wrap page">
+  <% if (album.description) { %><div class="card prose"><%- h.md(album.description) %></div><% } %>
+  <% if (photos.length) { %>
+    <div class="gallery" data-gallery>
+      <% photos.forEach((p, i) => { %>
+        <a href="<%= p.file %>" class="gallery-item" data-index="<%= i %>" data-caption="<%= p.caption || '' %>"><img src="<%= p.thumb %>" alt="<%= p.caption || 'Photo ' + (i + 1) %>" loading="lazy"></a>
+      <% }) %>
+    </div>
+  <% } else { %><div class="card"><p class="empty">Cet album est vide pour l'instant.</p></div><% } %>
+</div>
+<div class="lightbox" hidden>
+  <button class="lb-close" aria-label="Fermer">×</button>
+  <button class="lb-prev" aria-label="Précédente">‹</button>
+  <figure><img alt=""><figcaption></figcaption></figure>
+  <button class="lb-next" aria-label="Suivante">›</button>
+  <a class="lb-dl" download>Télécharger</a>
+</div>
+<%- include('partials/footer') %>

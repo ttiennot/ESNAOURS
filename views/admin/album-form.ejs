@@ -1,0 +1,58 @@
+<%- include('_top') %>
+<div class="admin-head"><h1><%= a.id ? a.title : 'Nouvel album' %></h1><a href="/admin/photos">← Retour</a></div>
+<form class="panel form" method="post" action="/admin/photos/save">
+  <input type="hidden" name="_csrf" value="<%= csrf %>">
+  <% if (a.id) { %><input type="hidden" name="id" value="<%= a.id %>"><% } %>
+  <div class="form-grid">
+    <label>Match associé
+      <select name="match_id" data-album-match>
+        <option value="">— Aucun (album libre) —</option>
+        <% matches.slice().reverse().forEach(m => { %><option value="<%= m.id %>" data-date="<%= m.date || '' %>" data-title="<%= m.home_team %> – <%= m.away_team %>"<%= a.match_id === m.id ? ' selected' : '' %>><%= h.fmtDate(m.date) %> · <%= m.home_team %> – <%= m.away_team %></option><% }) %>
+      </select>
+    </label>
+    <label>Titre<input name="title" value="<%= a.title || '' %>" placeholder="Rempli automatiquement depuis le match" data-album-title></label>
+    <label>Date<input type="date" name="date" value="<%= a.date || '' %>" data-album-date></label>
+  </div>
+  <label>Description<textarea name="description" rows="3"><%= a.description || '' %></textarea></label>
+  <label class="check"><input type="checkbox" name="published"<%= a.published ? ' checked' : '' %>> Visible sur le site</label>
+  <div class="form-actions"><button class="btn"><%= a.id ? 'Enregistrer' : 'Créer l\'album' %></button><% if (a.id) { %><a class="btn btn--ghost" href="/photos/<%= a.id %>" target="_blank">Voir ↗</a><% } %></div>
+</form>
+
+<% if (a.id) { %>
+<section class="panel">
+  <h2>Ajouter des photos</h2>
+  <form method="post" action="/admin/photos/<%= a.id %>/upload" enctype="multipart/form-data" class="dropzone" data-dropzone>
+    <input type="hidden" name="_csrf" value="<%= csrf %>">
+    <input type="file" name="photos" accept="image/*" multiple id="photo-input">
+    <label for="photo-input"><b>📤 Glisse tes photos ici</b><br>ou clique pour les choisir (jusqu'à 60 à la fois, JPG/PNG/WebP)</label>
+    <div class="progress" hidden><div></div><span></span></div>
+    <noscript><button class="btn">Envoyer</button></noscript>
+  </form>
+</section>
+
+<% if (photos.length) { %>
+<form class="panel" method="post" action="/admin/photos/<%= a.id %>/meta">
+  <input type="hidden" name="_csrf" value="<%= csrf %>">
+  <div class="admin-head"><h2><%= photos.length %> photos</h2><button class="btn btn--sm">Enregistrer légendes &amp; couverture</button></div>
+  <div class="photo-admin-grid">
+    <% photos.forEach(p => { %>
+      <div class="photo-admin">
+        <img src="<%= p.thumb %>" alt="" loading="lazy">
+        <input type="hidden" name="photo_id" value="<%= p.id %>">
+        <input name="caption" value="<%= p.caption || '' %>" placeholder="Légende">
+        <div class="photo-admin-actions">
+          <label class="check small"><input type="radio" name="cover_id" value="<%= p.id %>"<%= a.cover_id === p.id ? ' checked' : '' %>> Couverture</label>
+          <button type="submit" form="delp-<%= p.id %>" class="linkish danger small">Supprimer</button>
+        </div>
+      </div>
+    <% }) %>
+  </div>
+</form>
+<% photos.forEach(p => { %><form id="delp-<%= p.id %>" method="post" action="/admin/photos/<%= a.id %>/photo/<%= p.id %>/delete" data-confirm="Supprimer cette photo ?"><input type="hidden" name="_csrf" value="<%= csrf %>"></form><% }) %>
+<% } %>
+
+<form method="post" action="/admin/photos/<%= a.id %>/delete" data-confirm="Supprimer l'album et toutes ses photos ?" class="danger-zone">
+  <input type="hidden" name="_csrf" value="<%= csrf %>"><button class="btn btn--danger">Supprimer l'album</button>
+</form>
+<% } %>
+<%- include('_bottom') %>

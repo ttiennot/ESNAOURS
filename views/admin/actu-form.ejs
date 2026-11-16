@@ -1,0 +1,24 @@
+<%- include('_top') %>
+<div class="admin-head"><h1><%= p.id ? 'Modifier l\'actualité' : 'Nouvelle actualité' %></h1><a href="/admin/actus">← Retour</a></div>
+<form class="panel form" method="post" action="/admin/actus/save" enctype="multipart/form-data">
+  <input type="hidden" name="_csrf" value="<%= csrf %>">
+  <% if (p.id) { %><input type="hidden" name="id" value="<%= p.id %>"><% } %>
+  <label>Titre *<input name="title" value="<%= p.title || '' %>" required></label>
+  <label>Texte <span class="muted small">(**gras**, *italique*, listes avec « - », liens collés directement)</span><textarea name="body" rows="12"><%= p.body || '' %></textarea></label>
+  <div class="form-photo form-photo--wide">
+    <img src="<%= p.image || '/static/img/crest.svg' %>" alt="" data-preview="image">
+    <label class="btn btn--ghost">🖼️ Image d'illustration<input type="file" name="image" accept="image/*" hidden data-preview-input="image"></label>
+    <% if (p.image) { %><label class="check"><input type="checkbox" name="remove_image"> Supprimer l'image</label><% } %>
+  </div>
+  <div class="checks">
+    <label class="check"><input type="checkbox" name="published"<%= p.published ? ' checked' : '' %>> Publiée</label>
+    <label class="check"><input type="checkbox" name="pinned"<%= p.pinned ? ' checked' : '' %>> 📌 Épingler à la une</label>
+  </div>
+  <div class="form-actions"><button class="btn">Enregistrer</button></div>
+</form>
+<% if (p.id) { %>
+<form method="post" action="/admin/actus/<%= p.id %>/delete" data-confirm="Supprimer cette actualité ?" class="danger-zone">
+  <input type="hidden" name="_csrf" value="<%= csrf %>"><button class="btn btn--danger">Supprimer</button>
+</form>
+<% } %>
+<%- include('_bottom') %>

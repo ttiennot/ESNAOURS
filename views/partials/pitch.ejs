@@ -1,0 +1,20 @@
+<%# Terrain avec composition. Variables : lineup (hydraté), FORMATIONS, h %>
+<% const slotsDef = FORMATIONS[lineup.formation] || FORMATIONS['4-4-2']; %>
+<div class="pitch" aria-label="Composition en <%= lineup.formation %>">
+  <div class="pitch-lines"><span class="pl-box pl-box--top"></span><span class="pl-box pl-box--bottom"></span><span class="pl-circle"></span><span class="pl-half"></span></div>
+  <% slotsDef.forEach((s, i) => { const p = lineup.slotPlayers[i]; %>
+    <div class="pitch-player" style="left:<%= s.x %>%;top:<%= s.y %>%">
+      <% if (p) { %>
+        <a href="/effectif/<%= p.id %>" class="pp-link" data-player="<%= p.id %>">
+          <span class="pp-shirt<%= s.label === 'GB' ? ' pp-shirt--gk' : '' %>">
+            <% if (p.photo) { %><img src="<%= p.photo %>" alt=""><% } else { %><b><%= p.number || h.initials(p) %></b><% } %>
+            <% if (lineup.captain_id === p.id) { %><i class="pp-cap" title="Capitaine">C</i><% } %>
+          </span>
+          <span class="pp-name"><%= p.photo && p.number ? p.number + ' · ' : '' %><%= p.nickname || p.last_name %></span>
+        </a>
+      <% } else { %>
+        <span class="pp-shirt pp-shirt--empty"><b><%= s.label %></b></span><span class="pp-name">À définir</span>
+      <% } %>
+    </div>
+  <% }) %>
+</div>

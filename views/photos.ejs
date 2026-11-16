@@ -1,0 +1,8 @@
+<%- include('partials/header') %>
+<section class="page-head"><div class="wrap"><span class="eyebrow">Souvenirs en vert et blanc</span><h1>Photothèque</h1></div></section>
+<div class="wrap page">
+  <% if (albums.length) { %>
+    <div class="album-grid"><% albums.forEach(a => { %><%- include('partials/album-card', { a }) %><% }) %></div>
+  <% } else { %><div class="card"><p class="empty">Les premiers albums arrivent bientôt.</p></div><% } %>
+</div>
+<%- include('partials/footer') %>

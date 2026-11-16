@@ -1,0 +1,22 @@
+<%# Tableau de classement. Variables : rows, full (bool), settings, h %>
+<div class="table-wrap">
+<table class="standings<%= full ? '' : ' standings--compact' %>">
+  <thead><tr>
+    <th class="c-rank">#</th><th class="c-team">Équipe</th><th title="Points">Pts</th><th title="Joués">J</th>
+    <% if (full) { %><th title="Gagnés">G</th><th title="Nuls">N</th><th title="Perdus">P</th><th class="hide-sm" title="Forfaits">F</th><th class="hide-sm" title="Buts pour">BP</th><th class="hide-sm" title="Buts contre">BC</th><% } %>
+    <th title="Différence de buts">Diff</th>
+  </tr></thead>
+  <tbody>
+  <% rows.forEach(r => { %>
+    <tr class="<%= r.is_us ? 'is-us' : '' %>">
+      <td class="c-rank"><span><%= r.rank %></span></td>
+      <td class="c-team"><%- h.badge(r.team, r.logo, { us: !!r.is_us, settings, size: 'xs' }) %><span><%= r.team %></span></td>
+      <td class="c-pts"><strong><%= r.points %></strong></td>
+      <td><%= r.played %></td>
+      <% if (full) { %><td><%= r.won %></td><td><%= r.drawn %></td><td><%= r.lost %></td><td class="hide-sm"><%= r.forfeits %></td><td class="hide-sm"><%= r.goals_for %></td><td class="hide-sm"><%= r.goals_against %></td><% } %>
+      <td class="<%= r.goal_diff > 0 ? 'pos' : r.goal_diff < 0 ? 'neg' : '' %>"><%= r.goal_diff > 0 ? '+' : '' %><%= r.goal_diff %></td>
+    </tr>
+  <% }) %>
+  </tbody>
+</table>
+</div>

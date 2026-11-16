@@ -1,0 +1,50 @@
+<%- include('_top') %>
+<h1>Tableau de bord</h1>
+<div class="dash-grid">
+  <section class="panel">
+    <h2>Prochain match</h2>
+    <% if (next) { %>
+      <p class="big"><strong><%= next.home_team %></strong> – <strong><%= next.away_team %></strong></p>
+      <p><%= h.fmtDate(next.date, { long: true }) %><%= next.time ? ' à ' + next.time : '' %><%= next.venue ? ' · ' + next.venue : '' %></p>
+      <p>Composition :
+        <% if (!nextLineup) { %><span class="tag tag--warn">non saisie</span>
+        <% } else if (!nextLineup.published) { %><span class="tag tag--warn">brouillon</span>
+        <% } else { %><span class="tag tag--ok">publiée</span><% } %>
+      </p>
+      <a class="btn" href="/admin/compo/<%= next.id %>">⚽ Saisir / modifier la compo</a>
+    <% } else { %><p class="muted">Aucun match à venir. <a href="/admin/matchs/new">Ajouter un match</a></p><% } %>
+  </section>
+
+  <section class="panel">
+    <h2>Synchronisation FFF</h2>
+    <% if (!settings.fff_cp_no || !settings.fff_poule) { %>
+      <p class="flash flash--error">Non configurée. Renseigne les identifiants FFF dans <a href="/admin/reglages#fff">Réglages</a>.</p>
+    <% } else { %>
+      <p>Dernière synchro réussie : <strong><%= settings.fff_last_sync ? h.fmtDateTime(settings.fff_last_sync) : 'jamais' %></strong></p>
+      <p>Automatique : <strong><%= settings.fff_auto_sync === '1' ? 'oui, toutes les 30 min' : 'désactivée' %></strong></p>
+    <% } %>
+    <% if (settings.fff_last_error) { %><p class="flash flash--error small">Dernière erreur : <%= settings.fff_last_error %></p><% } %>
+    <form method="post" action="/admin/sync"><input type="hidden" name="_csrf" value="<%= csrf %>"><button class="btn">🔄 Synchroniser maintenant</button></form>
+  </section>
+
+  <section class="panel">
+    <h2>Contenu</h2>
+    <ul class="counts">
+      <li><a href="/admin/joueurs"><b><%= counts.players %></b> joueurs/staff</a></li>
+      <li><a href="/admin/matchs"><b><%= counts.matches %></b> matchs</a></li>
+      <li><a href="/admin/classement"><b><%= counts.teams %></b> équipes au classement</a></li>
+      <li><a href="/admin/actus"><b><%= counts.posts %></b> actualités</a></li>
+      <li><a href="/admin/photos"><b><%= counts.albums %></b> albums · <%= counts.photos %> photos</a></li>
+    </ul>
+  </section>
+
+  <section class="panel">
+    <h2>Raccourcis</h2>
+    <div class="btn-col">
+      <a class="btn btn--ghost" href="/admin/actus/new">📰 Publier une actualité</a>
+      <a class="btn btn--ghost" href="/admin/photos/new">📷 Créer un album photo</a>
+      <a class="btn btn--ghost" href="/admin/joueurs/new">👤 Ajouter un joueur</a>
+    </div>
+  </section>
+</div>
+<%- include('_bottom') %>

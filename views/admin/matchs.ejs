@@ -1,0 +1,29 @@
+<%- include('_top') %>
+<div class="admin-head">
+  <h1>Matchs &amp; compos</h1>
+  <div class="btn-row">
+    <form method="post" action="/admin/sync"><input type="hidden" name="_csrf" value="<%= csrf %>"><button class="btn btn--ghost">🔄 Synchro FFF</button></form>
+    <a class="btn" href="/admin/matchs/new">+ Match manuel</a>
+  </div>
+</div>
+<p class="muted small">Les matchs du championnat arrivent automatiquement de la FFF. Ajoute à la main les coupes ou matchs amicaux. Clique sur « Compo » pour saisir l'équipe avant un match.</p>
+<% if (!matches.length) { %><p class="panel muted">Aucun match. Configure la synchronisation FFF dans les réglages ou ajoute un match manuellement.</p><% } else { %>
+<div class="panel table-wrap">
+<table class="admin-table">
+  <thead><tr><th>Date</th><th>Match</th><th>Score</th><th>Source</th><th>Compo</th><th></th></tr></thead>
+  <tbody>
+  <% const today = h.todayParis(); matches.forEach(m => { const l = lineups.get(m.id); %>
+    <tr class="<%= m.date && m.date < today ? 'is-past' : '' %>">
+      <td><%= h.fmtDate(m.date, { year: false }) %><br><span class="muted small"><%= m.time || '' %> <%= m.round || '' %></span></td>
+      <td><span class="<%= m.is_home ? 'b' : '' %>"><%= m.home_team %></span> – <span class="<%= !m.is_home ? 'b' : '' %>"><%= m.away_team %></span><% if (m.status) { %> <span class="tag tag--warn"><%= m.status %></span><% } %></td>
+      <td><%= m.home_score != null ? m.home_score + ' – ' + m.away_score : '' %></td>
+      <td><span class="tag<%= m.source === 'fff' ? ' tag--ok' : '' %>"><%= m.source === 'fff' ? 'FFF' : 'Manuel' %></span><%= m.locked ? ' 🔒' : '' %></td>
+      <td><a class="btn btn--sm<%= l === undefined ? ' btn--ghost' : '' %>" href="/admin/compo/<%= m.id %>"><%= l === undefined ? 'Saisir' : l ? '✓ Publiée' : 'Brouillon' %></a></td>
+      <td class="actions"><a href="/admin/matchs/<%= m.id %>">Modifier</a> · <a href="/admin/photos/new?match=<%= m.id %>">Album</a></td>
+    </tr>
+  <% }) %>
+  </tbody>
+</table>
+</div>
+<% } %>
+<%- include('_bottom') %>

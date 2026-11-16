@@ -1,0 +1,21 @@
+<%# Ligne de match (calendrier / accueil). Variables : m, settings, h %>
+<% const res = h.outcome(m); %>
+<a class="match-row<%= res ? ' is-played' : '' %>" href="/match/<%= m.id %>">
+  <div class="mr-date">
+    <span class="mr-day"><%= h.fmtDate(m.date) %></span>
+    <span class="mr-meta"><%= m.time || '' %><%= m.round ? (m.time ? ' · ' : '') + m.round : '' %></span>
+  </div>
+  <div class="mr-teams">
+    <div class="mr-team mr-home<%= m.is_home ? ' is-us' : '' %>"><span class="mr-name"><%= m.home_team %></span><%- h.badge(m.home_team, m.home_logo, { us: !!m.is_home, settings, size: 'sm' }) %></div>
+    <div class="mr-score">
+      <% if (m.status && m.home_score == null) { %><span class="tag tag--warn"><%= m.status %></span>
+      <% } else if (m.home_score != null) { %><span class="score score--<%= res %>"><%= m.home_score %> – <%= m.away_score %></span>
+      <% } else { %><span class="vs">VS</span><% } %>
+    </div>
+    <div class="mr-team mr-away<%= !m.is_home ? ' is-us' : '' %>"><%- h.badge(m.away_team, m.away_logo, { us: !m.is_home, settings, size: 'sm' }) %><span class="mr-name"><%= m.away_team %></span></div>
+  </div>
+  <div class="mr-side">
+    <% if (res) { %><span class="pill pill--<%= res %>" title="<%= { V: 'Victoire', N: 'Nul', D: 'Défaite' }[res] %>"><%= res %></span><% } else { %><span class="mr-ha"><%= m.is_home ? 'Domicile' : 'Extérieur' %></span><% } %>
+    <% if (typeof lineupIds !== 'undefined' && lineupIds.has(m.id)) { %><span class="tag">Compo</span><% } %>
+  </div>
+</a>

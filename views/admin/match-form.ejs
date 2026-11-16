@@ -1,0 +1,30 @@
+<%- include('_top') %>
+<div class="admin-head"><h1><%= m.id ? 'Modifier le match' : 'Nouveau match' %></h1><a href="/admin/matchs">← Retour</a></div>
+<% if (m.source === 'fff') { %><p class="flash flash--info">Match synchronisé depuis la FFF. Tes modifications seront écrasées à la prochaine synchro, sauf si tu coches « Verrouiller ».</p><% } %>
+<form class="panel form" method="post" action="/admin/matchs/save">
+  <input type="hidden" name="_csrf" value="<%= csrf %>">
+  <% if (m.id) { %><input type="hidden" name="id" value="<%= m.id %>"><% } %>
+  <div class="form-grid">
+    <label>Compétition<input name="competition" value="<%= m.competition || '' %>" placeholder="D5, Coupe de la Somme, Amical…"></label>
+    <label>Journée / tour<input name="round" value="<%= m.round || '' %>" placeholder="J5"></label>
+    <label>Date<input type="date" name="date" value="<%= m.date || '' %>"></label>
+    <label>Heure<input type="time" name="time" value="<%= m.time || '' %>"></label>
+    <label>Équipe à domicile *<input name="home_team" value="<%= m.home_team || '' %>" required></label>
+    <label>Équipe à l'extérieur *<input name="away_team" value="<%= m.away_team || '' %>" required></label>
+    <label>Score domicile<input type="number" min="0" name="home_score" value="<%= m.home_score ?? '' %>"></label>
+    <label>Score extérieur<input type="number" min="0" name="away_score" value="<%= m.away_score ?? '' %>"></label>
+    <label>Lieu<input name="venue" value="<%= m.venue || '' %>"></label>
+    <label>Statut<input name="status" value="<%= m.status || '' %>" placeholder="Reporté, Forfait… (vide = normal)"></label>
+  </div>
+  <div class="checks">
+    <label class="check"><input type="checkbox" name="is_home"<%= m.is_home ? ' checked' : '' %>> L'ES Naours joue à domicile</label>
+    <label class="check"><input type="checkbox" name="locked"<%= m.locked ? ' checked' : '' %>> 🔒 Verrouiller (ne pas écraser par la synchro FFF)</label>
+  </div>
+  <div class="form-actions"><button class="btn">Enregistrer</button><% if (m.id) { %><a class="btn btn--ghost" href="/admin/compo/<%= m.id %>">⚽ Composition</a><% } %></div>
+</form>
+<% if (m.id) { %>
+<form method="post" action="/admin/matchs/<%= m.id %>/delete" data-confirm="Supprimer ce match (et sa compo) ?" class="danger-zone">
+  <input type="hidden" name="_csrf" value="<%= csrf %>"><button class="btn btn--danger">Supprimer le match</button>
+</form>
+<% } %>
+<%- include('_bottom') %>

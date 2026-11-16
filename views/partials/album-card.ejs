@@ -1,0 +1,7 @@
+<a class="album-card" href="/photos/<%= a.id %>">
+  <div class="album-cover"><% if (a.cover) { %><img src="<%= a.cover %>" alt="" loading="lazy"><% } else { %><span>📷</span><% } %><span class="album-count"><%= a.photo_count %> photo<%= a.photo_count > 1 ? 's' : '' %></span></div>
+  <div class="album-info">
+    <strong><%= a.title %></strong>
+    <span><%= a.date ? h.fmtDate(a.date, { year: true }) : '' %><% if (a.home_score != null) { %> · <%= a.home_score %>-<%= a.away_score %><% } %></span>
+  </div>
+</a>

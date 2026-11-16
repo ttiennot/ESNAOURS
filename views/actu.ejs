@@ -1,0 +1,15 @@
+<%- include('partials/header') %>
+<div class="wrap page narrow">
+  <a class="back" href="/club">← Toutes les actualités</a>
+  <article class="card article">
+    <span class="post-date"><%= h.fmtPosted(post.created_at) %></span>
+    <h1><%= post.title %></h1>
+    <% if (post.image) { %><img class="article-img" src="<%= post.image %>" alt=""><% } %>
+    <div class="prose"><%- h.md(post.body) %></div>
+  </article>
+  <% if (others.length) { %>
+    <h2 class="group-title">À lire aussi</h2>
+    <ul class="link-list"><% others.forEach(o => { %><li><a href="/actus/<%= o.id %>"><%= o.title %></a> <span class="muted small"><%= h.fmtPosted(o.created_at) %></span></li><% }) %></ul>
+  <% } %>
+</div>
+<%- include('partials/footer') %>

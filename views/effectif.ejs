@@ -1,0 +1,46 @@
+<%- include('partials/header') %>
+<section class="page-head"><div class="wrap"><span class="eyebrow"><%= settings.team_label %></span><h1>L'effectif</h1></div></section>
+<div class="wrap page">
+  <% if (!players.length) { %>
+    <div class="card"><p class="empty">L'effectif sera bientôt présenté ici.</p></div>
+  <% } else { %>
+  <div class="tabs tabs--filter" role="tablist" data-filter>
+    <button role="tab" aria-selected="true" data-pos="all">Tous <small><%= players.length %></small></button>
+    <% groups.forEach(g => { %><button role="tab" aria-selected="false" data-pos="<%= g.key %>"><%= g.label %> <small><%= g.players.length %></small></button><% }) %>
+  </div>
+  <% groups.forEach(g => { %>
+    <section class="squad-group" data-group="<%= g.key %>">
+      <h2 class="group-title"><%= g.label %></h2>
+      <div class="squad-grid">
+        <% g.players.forEach(p => { %>
+          <a class="player-card" href="/effectif/<%= p.id %>" data-player="<%= p.id %>">
+            <div class="pc-photo">
+              <img src="<%= p.photo || '/static/img/player.svg' %>" alt="<%= p.first_name %> <%= p.last_name %>" loading="lazy">
+              <% if (p.number) { %><span class="pc-num"><%= p.number %></span><% } %>
+              <% if (p.is_captain) { %><span class="pc-cap" title="Capitaine">C</span><% } %>
+            </div>
+            <div class="pc-info">
+              <span class="pc-first"><%= p.first_name %></span>
+              <strong class="pc-last"><%= p.last_name %></strong>
+              <span class="pc-role"><%= p.role || h.POSITIONS[p.position].single %></span>
+            </div>
+          </a>
+        <% }) %>
+      </div>
+    </section>
+  <% }) %>
+  <% } %>
+</div>
+
+<dialog class="player-modal" id="player-modal" aria-labelledby="pm-name">
+  <button class="pm-close" aria-label="Fermer" data-close>×</button>
+  <div class="pm-content"></div>
+</dialog>
+<script type="application/json" id="players-data"><%- JSON.stringify(players.map(p => ({
+  id: p.id, first_name: p.first_name, last_name: p.last_name, nickname: p.nickname, number: p.number,
+  position: h.POSITIONS[p.position].single, role: p.role, age: h.age(p.birth_date), height: p.height, foot: p.foot,
+  joined: p.joined, previous_club: p.previous_club, bio_html: h.md(p.bio), photo: p.photo || '/static/img/player.svg',
+  is_captain: !!p.is_captain, staff: p.position === 'STAFF',
+  stats: { matches: p.matches, goals: p.goals, assists: p.assists, yellow: p.yellow_cards, red: p.red_cards }
+}))).replace(/</g, '\\u003c') %></script>
+<%- include('partials/footer') %>

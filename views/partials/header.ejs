@@ -1,0 +1,33 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title><%= title ? title + ' · ' : '' %><%= settings.club_name %> – <%= settings.team_label %></title>
+<meta name="description" content="<%= settings.club_name %> : calendrier, résultats, classement, effectif et photos de l'équipe <%= settings.team_label %>.">
+<meta name="theme-color" content="#0a6b3a">
+<link rel="icon" href="<%= settings.logo || '/static/img/crest.svg' %>">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/static/css/style.css?v=1">
+</head>
+<body>
+<a class="skip" href="#main">Aller au contenu</a>
+<header class="site-header">
+  <div class="wrap header-inner">
+    <a class="brand" href="/">
+      <img src="<%= settings.logo || '/static/img/crest.svg' %>" alt="" class="brand-crest">
+      <span class="brand-text"><strong><%= settings.club_name %></strong><small><%= settings.team_label %></small></span>
+    </a>
+    <button class="nav-toggle" aria-expanded="false" aria-controls="nav" aria-label="Menu"><span></span><span></span><span></span></button>
+    <nav id="nav" class="nav">
+      <% const links = [['/', 'Accueil'], ['/calendrier', 'Calendrier'], ['/classement', 'Classement'], ['/effectif', 'Effectif'], ['/compo', 'Compo'], ['/photos', 'Photos'], ['/club', 'Le club']]; %>
+      <% for (const [href, label] of links) { const active = href === '/' ? path === '/' : path.startsWith(href) || (href === '/compo' && path.startsWith('/match')) || (href === '/club' && path.startsWith('/actus')); %>
+        <a href="<%= href %>"<%- active ? ' class="active" aria-current="page"' : '' %>><%= label %></a>
+      <% } %>
+      <% if (isAdmin) { %><a href="/admin" class="nav-admin">Admin</a><% } %>
+    </nav>
+  </div>
+</header>
+<main id="main">

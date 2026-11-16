@@ -1,0 +1,13 @@
+<%- include('_top') %>
+<div class="admin-head"><h1>Photothèque</h1><a class="btn" href="/admin/photos/new">+ Nouvel album</a></div>
+<% if (!albums.length) { %><p class="panel muted">Aucun album. Crée un album par match pour y déposer les photos.</p><% } else { %>
+<div class="album-grid">
+  <% albums.forEach(a => { %>
+    <a class="album-card" href="/admin/photos/<%= a.id %>">
+      <div class="album-cover"><% if (a.cover) { %><img src="<%= a.cover %>" alt=""><% } else { %><span>📷</span><% } %><span class="album-count"><%= a.photo_count %> photos</span></div>
+      <div class="album-info"><strong><%= a.title %></strong><span><%= a.date ? h.fmtDate(a.date, { year: true }) : '' %><%= a.published ? '' : ' · brouillon' %></span></div>
+    </a>
+  <% }) %>
+</div>
+<% } %>
+<%- include('_bottom') %>

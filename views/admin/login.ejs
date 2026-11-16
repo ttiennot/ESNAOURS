@@ -1,0 +1,18 @@
+<!doctype html>
+<html lang="fr"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><meta name="robots" content="noindex">
+<title>Connexion · Admin</title>
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@700;800&family=Inter:wght@400;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/static/css/style.css?v=1"><link rel="stylesheet" href="/static/css/admin.css?v=1"></head>
+<body class="login-page">
+  <form class="login-card" method="post" action="/admin/login">
+    <img src="<%= settings.logo || '/static/img/crest.svg' %>" alt="" width="72">
+    <h1>Espace dirigeants</h1>
+    <p class="muted"><%= settings.club_name %></p>
+    <% if (error) { %><div class="flash flash--error"><%= error %></div><% } %>
+    <input type="hidden" name="_csrf" value="<%= csrf %>">
+    <input type="hidden" name="next" value="<%= next %>">
+    <label>Mot de passe<input type="password" name="password" autocomplete="current-password" required autofocus></label>
+    <button class="btn btn--full">Se connecter</button>
+    <a href="/" class="muted small">← Retour au site</a>
+  </form>
+</body></html>

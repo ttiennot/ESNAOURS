@@ -1,0 +1,56 @@
+<%- include('_top') %>
+<h1>Réglages</h1>
+<form class="form" method="post" action="/admin/reglages" enctype="multipart/form-data">
+  <input type="hidden" name="_csrf" value="<%= csrf %>">
+  <section class="panel">
+    <h2>Le club</h2>
+    <div class="form-photo">
+      <img src="<%= settings.logo || '/static/img/crest.svg' %>" alt="" data-preview="logo" class="contain">
+      <label class="btn btn--ghost">Écusson du club<input type="file" name="logo" accept="image/*" hidden data-preview-input="logo"></label>
+      <% if (settings.logo) { %><label class="check"><input type="checkbox" name="remove_logo"> Revenir à l'écusson par défaut</label><% } %>
+      <p class="muted small">PNG à fond transparent idéalement.</p>
+    </div>
+    <div class="form-grid">
+      <label>Nom du club<input name="club_name" value="<%= settings.club_name %>"></label>
+      <label>Équipe<input name="team_label" value="<%= settings.team_label %>"></label>
+      <label>Compétition (affichage)<input name="competition_label" value="<%= settings.competition_label %>"></label>
+      <label>Accroche (page d'accueil)<input name="hero_tagline" value="<%= settings.hero_tagline %>"></label>
+      <label>Stade<input name="stadium" value="<%= settings.stadium %>"></label>
+      <label>Adresse<input name="address" value="<%= settings.address %>"></label>
+      <label>E-mail de contact<input type="email" name="email" value="<%= settings.email %>"></label>
+      <label>Téléphone<input name="phone" value="<%= settings.phone %>"></label>
+      <label>Page Facebook (URL)<input type="url" name="facebook" value="<%= settings.facebook %>"></label>
+      <label>Instagram (URL)<input type="url" name="instagram" value="<%= settings.instagram %>"></label>
+    </div>
+  </section>
+
+  <section class="panel" id="fff">
+    <h2>Synchronisation FFF (calendrier &amp; classement)</h2>
+    <p class="muted small">Les données viennent de l'API officielle FFF (api-dofa.fff.fr), utilisée par l'appli myFFF. Pour trouver les identifiants : saisis le n° de club puis clique sur « Rechercher les équipes », ou ouvre la page de la poule sur <em>epreuves.fff.fr</em> ou <em>somme.fff.fr</em> : l'adresse contient <code>/competition/engagement/<b>CP_NO</b>-…/phase/<b>PHASE</b>/<b>POULE</b>-…</code>.</p>
+    <div class="form-grid">
+      <label>N° de club FFF<input name="fff_club_id" value="<%= settings.fff_club_id %>" placeholder="ex. 500123" data-club-id></label>
+      <label>N° de compétition (cp_no)<input name="fff_cp_no" value="<%= settings.fff_cp_no %>" data-cp></label>
+      <label>Phase<input name="fff_phase" value="<%= settings.fff_phase %>" data-phase></label>
+      <label>N° de poule (stage_number)<input name="fff_poule" value="<%= settings.fff_poule %>" data-poule></label>
+      <label>Nom d'équipe à reconnaître<input name="fff_team_pattern" value="<%= settings.fff_team_pattern %>"></label>
+      <label>Adresse de l'API<input name="fff_api_base" value="<%= settings.fff_api_base %>"></label>
+    </div>
+    <label class="check"><input type="checkbox" name="fff_auto_sync"<%= settings.fff_auto_sync === '1' ? ' checked' : '' %>> Synchroniser automatiquement toutes les 30 minutes</label>
+    <div class="btn-row"><button type="button" class="btn btn--ghost" data-find-teams>🔎 Rechercher les équipes du club</button></div>
+    <div data-teams-result class="teams-result"></div>
+  </section>
+
+  <div class="form-actions sticky-actions"><button class="btn">Enregistrer les réglages</button></div>
+</form>
+
+<form class="panel form" method="post" action="/admin/password" id="password">
+  <h2>Mot de passe administrateur</h2>
+  <input type="hidden" name="_csrf" value="<%= csrf %>">
+  <div class="form-grid">
+    <label>Mot de passe actuel<input type="password" name="current" required autocomplete="current-password"></label>
+    <label>Nouveau (8 caractères min.)<input type="password" name="password" required minlength="8" autocomplete="new-password"></label>
+    <label>Confirmation<input type="password" name="confirm" required minlength="8" autocomplete="new-password"></label>
+  </div>
+  <div class="form-actions"><button class="btn">Changer le mot de passe</button></div>
+</form>
+<%- include('_bottom') %>

@@ -1,0 +1,16 @@
+<%- include('partials/header') %>
+<section class="page-head"><div class="wrap"><span class="eyebrow"><%= settings.team_label %></span><h1>Compositions</h1></div></section>
+<div class="wrap page">
+  <div class="card">
+    <% if (next) { %>
+      <p>La compo du prochain match (<strong><%= next.home_team %> – <%= next.away_team %></strong>, <%= h.fmtDate(next.date, { long: true }) %>) n'est pas encore publiée. Reviens bientôt !</p>
+    <% } else { %><p>Aucun match à venir pour le moment.</p><% } %>
+  </div>
+  <% if (lineups.length) { %>
+    <h2 class="group-title">Compos précédentes</h2>
+    <div class="card"><div class="match-list">
+      <% lineups.forEach(l => { const m = { ...l, id: l.match_id }; %><%- include('partials/match-row', { m }) %><% }) %>
+    </div></div>
+  <% } %>
+</div>
+<%- include('partials/footer') %>

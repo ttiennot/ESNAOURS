@@ -1,0 +1,79 @@
+<%- include('partials/header') %>
+<section class="hero">
+  <div class="wrap hero-inner">
+    <div class="hero-text">
+      <span class="eyebrow"><%= settings.competition_label %></span>
+      <h1><%= settings.club_name %></h1>
+      <p><%= settings.hero_tagline %></p>
+      <% if (us) { %>
+      <div class="hero-stats">
+        <div><b><%= us.rank %><sup><%= us.rank === 1 ? 'er' : 'e' %></sup></b><span>Classement</span></div>
+        <div><b><%= us.points %></b><span>points</span></div>
+        <div><b><%= us.won %>-<%= us.drawn %>-<%= us.lost %></b><span>V-N-D</span></div>
+      </div>
+      <% } %>
+    </div>
+    <div class="next-card">
+      <% if (next) { %>
+        <div class="nc-head"><span>Prochain match</span><span><%= next.round || next.competition || '' %></span></div>
+        <div class="nc-teams">
+          <div class="nc-team"><%- h.badge(next.home_team, next.home_logo, { us: !!next.is_home, settings, size: 'lg' }) %><span><%= next.home_team %></span></div>
+          <div class="nc-vs">VS</div>
+          <div class="nc-team"><%- h.badge(next.away_team, next.away_logo, { us: !next.is_home, settings, size: 'lg' }) %><span><%= next.away_team %></span></div>
+        </div>
+        <div class="nc-when"><strong><%= h.fmtDate(next.date, { long: true }) %></strong><% if (next.time) { %> à <strong><%= next.time.replace(':', 'h') %></strong><% } %></div>
+        <% if (next.venue) { %><div class="nc-venue">📍 <%= next.venue %></div><% } %>
+        <% if (next.status) { %><div class="nc-venue"><span class="tag tag--warn"><%= next.status %></span></div><% } %>
+        <% if (next.date && next.time) { %><div class="countdown" data-kickoff="<%= next.date %>T<%= next.time %>:00"></div><% } %>
+        <div class="nc-actions">
+          <a class="btn btn--light" href="/match/<%= next.id %>"><%= nextLineup ? 'Voir la compo' : 'Détails du match' %></a>
+          <% if (nextLineup) { %><span class="tag tag--live">Compo publiée</span><% } %>
+        </div>
+      <% } else { %>
+        <div class="nc-head"><span>Prochain match</span></div>
+        <p class="nc-empty">Aucun match programmé pour le moment.<br>Le calendrier sera mis à jour dès sa publication par le District.</p>
+      <% } %>
+    </div>
+  </div>
+</section>
+
+<div class="wrap home-grid">
+  <section class="card">
+    <div class="card-head"><h2>Derniers résultats</h2><a href="/calendrier">Calendrier complet →</a></div>
+    <% if (results.length) { %>
+      <div class="match-list"><% results.forEach(m => { %><%- include('partials/match-row', { m }) %><% }) %></div>
+    <% } else { %><p class="empty">Pas encore de résultat cette saison.</p><% } %>
+    <% if (upcoming.length) { %>
+      <h3 class="sub">À venir</h3>
+      <div class="match-list"><% upcoming.forEach(m => { %><%- include('partials/match-row', { m }) %><% }) %></div>
+    <% } %>
+  </section>
+
+  <section class="card">
+    <div class="card-head"><h2>Classement</h2><a href="/classement">Voir tout →</a></div>
+    <% if (excerpt.length) { %><%- include('partials/standings', { rows: excerpt, full: false }) %>
+    <% } else { %><p class="empty">Classement bientôt disponible.</p><% } %>
+  </section>
+
+  <section class="card card--wide">
+    <div class="card-head"><h2>Actualités du club</h2><a href="/club">Toutes les infos →</a></div>
+    <% if (posts.length) { %>
+      <div class="posts">
+        <% posts.forEach(p => { %>
+          <a class="post-card" href="/actus/<%= p.id %>">
+            <% if (p.image) { %><img src="<%= p.image %>" alt="" loading="lazy"><% } else { %><div class="post-ph"><img src="<%= settings.logo || '/static/img/crest.svg' %>" alt=""></div><% } %>
+            <div class="post-body"><span class="post-date"><%= h.fmtPosted(p.created_at) %><%= p.pinned ? ' · 📌 À la une' : '' %></span><h3><%= p.title %></h3></div>
+          </a>
+        <% }) %>
+      </div>
+    <% } else { %><p class="empty">Aucune actualité pour l'instant.</p><% } %>
+  </section>
+
+  <% if (albums.length) { %>
+  <section class="card card--wide">
+    <div class="card-head"><h2>Dernières photos</h2><a href="/photos">Photothèque →</a></div>
+    <div class="album-grid album-grid--small"><% albums.forEach(a => { %><%- include('partials/album-card', { a }) %><% }) %></div>
+  </section>
+  <% } %>
+</div>
+<%- include('partials/footer') %>

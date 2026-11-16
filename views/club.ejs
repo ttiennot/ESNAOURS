@@ -1,0 +1,34 @@
+<%- include('partials/header') %>
+<section class="page-head"><div class="wrap"><span class="eyebrow">Infos &amp; actualités</span><h1>Le club</h1></div></section>
+<div class="wrap page club-layout">
+  <div class="club-main">
+    <h2 class="group-title">Actualités</h2>
+    <% if (posts.length) { %>
+      <div class="news-list">
+      <% posts.forEach(p => { %>
+        <article class="news card">
+          <% if (p.image) { %><a href="/actus/<%= p.id %>"><img src="<%= p.image %>" alt="" loading="lazy"></a><% } %>
+          <div>
+            <span class="post-date"><%= h.fmtPosted(p.created_at) %><%= p.pinned ? ' · 📌 À la une' : '' %></span>
+            <h3><a href="/actus/<%= p.id %>"><%= p.title %></a></h3>
+            <div class="prose clamp"><%- h.md(p.body) %></div>
+            <a class="more" href="/actus/<%= p.id %>">Lire la suite →</a>
+          </div>
+        </article>
+      <% }) %>
+      </div>
+    <% } else { %><div class="card"><p class="empty">Aucune actualité pour le moment.</p></div><% } %>
+  </div>
+  <aside class="club-side">
+    <% sections.forEach(s => { %>
+      <section class="card info-block"><h2><%= s.title %></h2><div class="prose"><%- h.md(s.body) %></div></section>
+    <% }) %>
+    <% if (settings.email || settings.phone) { %>
+      <section class="card info-block"><h2>Contact</h2>
+        <% if (settings.email) { %><p>✉️ <a href="mailto:<%= settings.email %>"><%= settings.email %></a></p><% } %>
+        <% if (settings.phone) { %><p>📞 <a href="tel:<%= settings.phone.replace(/\s/g, '') %>"><%= settings.phone %></a></p><% } %>
+      </section>
+    <% } %>
+  </aside>
+</div>
+<%- include('partials/footer') %>

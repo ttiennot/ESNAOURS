@@ -1,0 +1,55 @@
+<%- include('partials/header') %>
+<% const res = h.outcome(m); %>
+<section class="match-hero">
+  <div class="wrap">
+    <a class="back back--light" href="/calendrier">← Calendrier</a>
+    <div class="mh-meta"><%= m.competition || settings.competition_label %><%= m.round ? ' · ' + m.round : '' %></div>
+    <div class="mh-teams">
+      <div class="mh-team"><%- h.badge(m.home_team, m.home_logo, { us: !!m.is_home, settings, size: 'xl' }) %><span><%= m.home_team %></span></div>
+      <div class="mh-score">
+        <% if (m.home_score != null) { %><b><%= m.home_score %></b><i>–</i><b><%= m.away_score %></b><% } else { %><span class="mh-vs">VS</span><% } %>
+      </div>
+      <div class="mh-team"><%- h.badge(m.away_team, m.away_logo, { us: !m.is_home, settings, size: 'xl' }) %><span><%= m.away_team %></span></div>
+    </div>
+    <div class="mh-when">
+      <%= h.fmtDate(m.date, { long: true, year: true }) %><%= m.time ? ' · ' + m.time.replace(':', 'h') : '' %>
+      <% if (m.venue) { %><br><span>📍 <%= m.venue %></span><% } %>
+      <% if (m.status) { %><br><span class="tag tag--warn"><%= m.status %></span><% } %>
+      <% if (res) { %><br><span class="pill pill--<%= res %> pill--lg"><%= { V: 'Victoire', N: 'Match nul', D: 'Défaite' }[res] %></span><% } %>
+    </div>
+    <% if (m.home_score == null && m.date && m.time) { %><div class="countdown" data-kickoff="<%= m.date %>T<%= m.time %>:00"></div><% } %>
+  </div>
+</section>
+
+<div class="wrap page">
+  <section class="card" id="compo">
+    <div class="card-head"><h2>Composition</h2><% if (lineup) { %><span class="tag"><%= lineup.formation %></span><% } %></div>
+    <% if (lineup) { %>
+      <% if (!lineup.published) { %><p class="notice">Brouillon : visible uniquement par l'admin.</p><% } %>
+      <div class="lineup">
+        <%- include('partials/pitch', { lineup }) %>
+        <aside class="lineup-side">
+          <% if (lineup.meeting) { %><div class="lineup-box"><h3>⏰ Rendez-vous</h3><p><%= lineup.meeting %></p></div><% } %>
+          <div class="lineup-box">
+            <h3>Remplaçants</h3>
+            <% if (lineup.subPlayers.length) { %>
+              <ul class="subs"><% lineup.subPlayers.forEach(p => { %><li><a href="/effectif/<%= p.id %>"><span class="sub-num"><%= p.number || '–' %></span><%= p.first_name %> <strong><%= p.last_name %></strong></a></li><% }) %></ul>
+            <% } else { %><p class="muted">—</p><% } %>
+          </div>
+          <% if (lineup.notes) { %><div class="lineup-box"><h3>Le mot du coach</h3><div class="prose"><%- h.md(lineup.notes) %></div></div><% } %>
+        </aside>
+      </div>
+    <% } else { %>
+      <p class="empty"><%= m.home_score == null ? 'La composition sera publiée par le staff avant le match.' : 'Pas de composition enregistrée pour ce match.' %></p>
+    <% } %>
+  </section>
+
+  <% if (albums.length) { %>
+  <section class="card">
+    <div class="card-head"><h2>Photos du match</h2></div>
+    <div class="btn-row"><% albums.forEach(a => { %><a class="btn" href="/photos/<%= a.id %>">📷 <%= a.title %></a><% }) %></div>
+  </section>
+  <% } %>
+  <% if (isAdmin) { %><p class="admin-shortcuts"><a class="btn btn--ghost" href="/admin/compo/<%= m.id %>">✏️ Éditer la compo</a> <a class="btn btn--ghost" href="/admin/photos/new?match=<%= m.id %>">📷 Ajouter un album</a></p><% } %>
+</div>
+<%- include('partials/footer') %>
