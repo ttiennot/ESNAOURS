@@ -59,6 +59,13 @@ Si un pare-feu est actif (ufw), ouvrir les ports web :
 ufw allow 80,443/tcp
 ```
 
+### 3 bis. Si un autre site utilise déjà les ports 80/443 (Nginx ou Apache)
+Le site écoute en local sur `127.0.0.1:3010` (modifiable avec `APP_PORT` dans `.env`). Le serveur web existant relaie esnaours.fr vers ce port :
+- **Nginx** : copier `deploy/nginx-esnaours.conf` dans `/etc/nginx/sites-available/`, l'activer, puis lancer `certbot --nginx -d esnaours.fr -d www.esnaours.fr` ;
+- **Apache** : copier `deploy/apache-esnaours.conf` dans `/etc/apache2/sites-available/`, activer `a2enmod proxy proxy_http headers`, puis lancer `certbot --apache -d esnaours.fr -d www.esnaours.fr`.
+
+Sans autre site sur le VPS, ajouter `COMPOSE_PROFILES=caddy` dans `.env` : Caddy gère alors seul les ports 80/443 et l'HTTPS.
+
 ### 3. Lancer le site
 ```bash
 cd /opt/esnaours && ./scripts/deploy.sh
