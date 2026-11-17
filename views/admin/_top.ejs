@@ -5,14 +5,15 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="robots" content="noindex">
 <title><%= title %> · Admin <%= settings.club_name %></title>
-<link rel="icon" href="<%= settings.logo || '/static/img/crest.svg' %>">
+<link rel="icon" href="<%= settings.logo || '/static/img/crest-180.png' %>">
+<link rel="apple-touch-icon" href="/static/img/crest-180.png">
 <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="/static/css/style.css?v=1">
 <link rel="stylesheet" href="/static/css/admin.css?v=1">
 </head>
 <body class="admin">
 <header class="admin-bar">
-  <a class="brand brand--sm" href="/admin"><img src="<%= settings.logo || '/static/img/crest.svg' %>" alt="" class="brand-crest"><span class="brand-text"><strong>Admin</strong><small><%= settings.club_name %></small></span></a>
+  <a class="brand brand--sm" href="/admin"><img src="<%= settings.logo || '/static/img/crest.png' %>" alt="" class="brand-crest"><span class="brand-text"><strong>Admin</strong><small><%= settings.club_name %></small></span></a>
   <nav class="admin-nav">
     <% const links = [['/admin', 'Tableau de bord'], ['/admin/matchs', 'Matchs & compos'], ['/admin/import', 'Import FFF'], ['/admin/joueurs', 'Effectif'], ['/admin/classement', 'Classement'], ['/admin/actus', 'Actualités'], ['/admin/club', 'Infos club'], ['/admin/photos', 'Photothèque'], ['/admin/reglages', 'Réglages']]; %>
     <% for (const [href, label] of links) { const active = href === '/admin' ? (path === '/admin' || path === '/admin/') : path.startsWith(href); %><a href="<%= href %>"<%- active ? ' class="active"' : '' %>><%= label %></a><% } %>

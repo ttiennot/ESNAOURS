@@ -1,13 +1,13 @@
 /* Administration */
-body.admin { background: #eef3f0; }
+body.admin { background: #eff3ea; }
 .admin-bar { background: var(--g-900); color: #fff; display: flex; align-items: center; gap: 18px; padding: 10px 20px; position: sticky; top: 0; z-index: 20; flex-wrap: wrap; }
 .brand--sm { margin-right: 0; }
-.brand--sm .brand-crest { width: 34px; height: 40px; }
+.brand--sm .brand-crest { width: 40px; height: 40px; }
 .brand--sm .brand-text strong { font-size: 1.3rem; }
 .admin-nav { display: flex; gap: 2px; flex-wrap: wrap; flex: 1; }
 .admin-nav a { color: #e3f4ea; text-decoration: none; padding: 7px 11px; border-radius: 8px; font-size: .88rem; font-weight: 600; }
 .admin-nav a:hover { background: rgba(255,255,255,.1); }
-.admin-nav a.active { background: #fff; color: var(--g-800); }
+.admin-nav a.active { background: var(--lime); color: var(--g-950); }
 .admin-bar-right { display: flex; gap: 14px; align-items: center; font-size: .85rem; }
 .admin-bar-right a { color: var(--g-300); }
 .admin-bar-right form { margin: 0; }
@@ -51,7 +51,7 @@ label.check input { width: 18px; height: 18px; accent-color: var(--g-700); }
 .check--big { font-size: 1.05rem !important; font-weight: 700 !important; background: var(--g-50); padding: 10px 12px; border-radius: 10px; border: 1px solid var(--line); }
 .checks { display: flex; gap: 22px; flex-wrap: wrap; margin: 6px 0 4px; }
 .form-actions { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 10px; align-items: center; }
-.sticky-actions { position: sticky; bottom: 0; background: rgba(238,243,240,.95); padding: 12px 0; z-index: 5; }
+.sticky-actions { position: sticky; bottom: 0; background: rgba(240,244,235,.95); padding: 12px 0; z-index: 5; }
 .danger-zone { margin-top: 8px; }
 .form-photo { display: flex; align-items: center; gap: 14px; flex-wrap: wrap; margin-bottom: 16px; }
 .form-photo img { width: 96px; height: 120px; object-fit: cover; border-radius: 10px; background: var(--g-100); border: 1px solid var(--line); }
@@ -133,3 +133,4 @@ input[data-fff-url].is-ok { border-color: var(--g-500) !important; background: v
 .import-links { display: flex; flex-wrap: wrap; gap: 8px; margin: 12px 0; }
 textarea.mono { font-family: ui-monospace, Menlo, Consolas, monospace !important; font-size: .8rem !important; }
 kbd { background: #fff; border: 1px solid var(--line); border-bottom-width: 2px; border-radius: 4px; padding: 0 5px; font-size: .85em; }
+.login-card > img { border-radius: 50%; box-shadow: 0 0 0 3px var(--lime); }

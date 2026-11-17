@@ -6,7 +6,7 @@
   <label>Titre *<input name="title" value="<%= p.title || '' %>" required></label>
   <label>Texte <span class="muted small">(**gras**, *italique*, listes avec « - », liens collés directement)</span><textarea name="body" rows="12"><%= p.body || '' %></textarea></label>
   <div class="form-photo form-photo--wide">
-    <img src="<%= p.image || '/static/img/crest.svg' %>" alt="" data-preview="image">
+    <img src="<%= p.image || '/static/img/crest.png' %>" alt="" data-preview="image">
     <label class="btn btn--ghost">🖼️ Image d'illustration<input type="file" name="image" accept="image/*" hidden data-preview-input="image"></label>
     <% if (p.image) { %><label class="check"><input type="checkbox" name="remove_image"> Supprimer l'image</label><% } %>
   </div>

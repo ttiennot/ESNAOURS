@@ -143,7 +143,7 @@ const DEFAULT_SETTINGS = {
   club_name: 'ES Naours',
   team_label: 'Seniors · Départemental 5',
   competition_label: 'District de la Somme – D5',
-  hero_tagline: 'Le club de foot de Naours depuis toujours, en vert et blanc.',
+  hero_tagline: 'Étoile Sportive de Naours : le foot au village, en vert et blanc.',
   logo: '',
   stadium: 'Stade municipal de Naours',
   address: 'Naours (80260), Somme',
@@ -169,12 +169,16 @@ for (const [k, v] of Object.entries(DEFAULT_SETTINGS)) insertDefault.run(k, v);
 
 if (db.prepare('SELECT COUNT(*) AS n FROM club_sections').get().n === 0) {
   const ins = db.prepare('INSERT INTO club_sections (title, body, sort_order) VALUES (?, ?, ?)');
-  ins.run('Présentation', "L'**Entente Sportive de Naours** fait vivre le football au village. Notre équipe Seniors évolue en **Départemental 5** du District de la Somme.\n\n*Texte à personnaliser dans l'administration.*", 1);
+  ins.run('Présentation', "L'**Étoile Sportive de Naours** fait vivre le football au village. Notre équipe Seniors évolue en **Départemental 5** du District de la Somme.\n\n*Texte à personnaliser dans l'administration.*", 1);
   ins.run('Le stade', 'Stade municipal – Naours (80260)\n\nMatchs à domicile le dimanche après-midi.', 2);
   ins.run('Entraînements', '- Mercredi : 19h00 – 20h30\n- Vendredi : 19h00 – 20h30', 3);
   ins.run('Bureau', '- Président : à compléter\n- Secrétaire : à compléter\n- Trésorier : à compléter', 4);
   ins.run('Nous rejoindre', "Tu veux jouer ou donner un coup de main ? Viens nous voir à l'entraînement ou contacte-nous !", 5);
 }
+
+// Correctif : « ES » = Étoile Sportive (le texte d'origine disait « Entente Sportive »)
+db.prepare("UPDATE settings SET value = ? WHERE key = 'hero_tagline' AND value = ?").run(DEFAULT_SETTINGS.hero_tagline, 'Le club de foot de Naours depuis toujours, en vert et blanc.');
+db.prepare("UPDATE club_sections SET body = replace(body, 'Entente Sportive de Naours', 'Étoile Sportive de Naours') WHERE body LIKE '%Entente Sportive de Naours%'").run();
 
 function getSettings() {
   const out = {};

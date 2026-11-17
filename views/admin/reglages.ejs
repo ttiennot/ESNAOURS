@@ -5,7 +5,7 @@
   <section class="panel">
     <h2>Le club</h2>
     <div class="form-photo">
-      <img src="<%= settings.logo || '/static/img/crest.svg' %>" alt="" data-preview="logo" class="contain">
+      <img src="<%= settings.logo || '/static/img/crest.png' %>" alt="" data-preview="logo" class="contain">
       <label class="btn btn--ghost">Écusson du club<input type="file" name="logo" accept="image/*" hidden data-preview-input="logo"></label>
       <% if (settings.logo) { %><label class="check"><input type="checkbox" name="remove_logo"> Revenir à l'écusson par défaut</label><% } %>
       <p class="muted small">PNG à fond transparent idéalement.</p>

@@ -34,7 +34,7 @@ app.use((req, res, next) => {
 
 app.use('/static', express.static(path.join(__dirname, 'public'), { maxAge: PROD ? '7d' : 0 }));
 app.use('/uploads', express.static(UPLOAD_DIR, { maxAge: '30d', immutable: true }));
-app.get('/favicon.ico', (req, res) => res.redirect(301, '/static/img/crest.svg'));
+app.get('/favicon.ico', (req, res) => res.redirect(301, '/static/img/crest.png'));
 app.get('/robots.txt', (req, res) => res.type('text/plain').send('User-agent: *\nDisallow: /admin\n'));
 
 app.use(express.urlencoded({ extended: true, limit: '15mb' }));

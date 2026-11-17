@@ -82,7 +82,7 @@ module.exports = { escapeHtml, md, fmtDate, fmtDateTime, todayParis, age, outcom
 /** Écusson d'équipe : logo FFF si dispo, sinon initiales. */
 function badge(name, logo, { us = false, settings = {}, size = '' } = {}) {
   const cls = `badge${size ? ' badge--' + size : ''}${us ? ' badge--us' : ''}`;
-  const src = us ? (settings.logo || '/static/img/crest.svg') : logo;
+  const src = us ? (settings.logo || '/static/img/crest.png') : logo;
   if (src) return `<span class="${cls}"><img src="${escapeHtml(src)}" alt="" loading="lazy" onerror="this.parentNode.classList.add('badge--txt');this.remove()"><b>${escapeHtml(abbr(name))}</b></span>`;
   return `<span class="${cls} badge--txt"><b>${escapeHtml(abbr(name))}</b></span>`;
 }

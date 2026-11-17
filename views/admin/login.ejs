@@ -5,7 +5,7 @@
 <link rel="stylesheet" href="/static/css/style.css?v=1"><link rel="stylesheet" href="/static/css/admin.css?v=1"></head>
 <body class="login-page">
   <form class="login-card" method="post" action="/admin/login">
-    <img src="<%= settings.logo || '/static/img/crest.svg' %>" alt="" width="72">
+    <img src="<%= settings.logo || '/static/img/crest.png' %>" alt="" width="72">
     <h1>Espace dirigeants</h1>
     <p class="muted"><%= settings.club_name %></p>
     <% if (error) { %><div class="flash flash--error"><%= error %></div><% } %>
