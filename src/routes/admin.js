@@ -8,6 +8,7 @@ const { syncAll, configFromSettings } = require('../sync');
 const fff = require('../fff');
 const { FORMATIONS } = require('../formations');
 const { importFffText, importLinks } = require('../importer');
+const { parseRoster } = require('../roster');
 
 const router = express.Router();
 const csrf = auth.verifyCsrf;
@@ -94,6 +95,34 @@ router.post('/fff/equipes', csrf, async (req, res) => {
 /* ---------- Joueurs ---------- */
 router.get('/joueurs', (req, res) => res.render('admin/joueurs', { title: 'Effectif', players: q.players(false) }));
 router.get('/joueurs/new', (req, res) => res.render('admin/joueur-form', { title: 'Nouveau joueur', p: { position: 'MIL', active: 1 } }));
+
+/* Ajout groupé : une ligne par joueur, avec aperçu avant enregistrement */
+const normName = (f, l) => `${f} ${l}`.normalize('NFD').replace(/[̀-ͯ]/g, '').toLowerCase().replace(/[^a-z]/g, '');
+router.get('/joueurs/ajout-groupe', (req, res) => {
+  res.render('admin/joueurs-groupe', { title: 'Ajout groupé', text: '', rows: null, visible: true });
+});
+router.post('/joueurs/ajout-groupe', csrf, (req, res) => {
+  const text = String(req.body.text || '');
+  const visible = bool(req.body.visible) === 1;
+  const defaultPos = ['GB', 'DEF', 'MIL', 'ATT', 'STAFF'].includes(req.body.default_position) ? req.body.default_position : 'MIL';
+  const existing = new Set(q.players(false).map(p => normName(p.first_name, p.last_name)));
+  const seen = new Set();
+  const rows = parseRoster(text).map(r => {
+    const key = normName(r.first_name, r.last_name);
+    const dup = existing.has(key) || seen.has(key);
+    seen.add(key);
+    return { ...r, position: r.positionGiven ? r.position : defaultPos, dup };
+  });
+  if (req.body.action !== 'save') {
+    return res.render('admin/joueurs-groupe', { title: 'Ajout groupé', text, rows, visible, defaultPos });
+  }
+  const ins = db.prepare('INSERT INTO players (first_name, last_name, number, position, role, active) VALUES (?,?,?,?,?,?)');
+  let n = 0;
+  tx(() => { for (const r of rows) if (!r.dup) { ins.run(r.first_name, r.last_name, r.number, r.position, r.role, visible ? 1 : 0); n++; } });
+  const skipped = rows.length - n;
+  flash(req, 'ok', `${n} personne(s) ajoutée(s) à l'effectif${skipped ? ` (${skipped} déjà présente(s), ignorée(s))` : ''}. Complète maintenant postes, numéros et photos.`);
+  res.redirect('/admin/joueurs');
+});
 router.get('/joueurs/:id', (req, res, next) => {
   const p = q.player(int(req.params.id));
   if (!p) return next();

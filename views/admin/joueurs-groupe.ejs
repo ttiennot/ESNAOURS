@@ -1,0 +1,51 @@
+<%- include('_top') %>
+<div class="admin-head"><h1>Ajout groupé</h1><a href="/admin/joueurs">← Effectif</a></div>
+
+<form class="panel form" method="post" action="/admin/joueurs/ajout-groupe">
+  <input type="hidden" name="_csrf" value="<%= csrf %>">
+  <p class="muted">Colle ou tape la liste : <strong>une personne par ligne</strong>. Le numéro (au début) et le poste (à la fin) sont facultatifs.</p>
+  <div class="groupe-help">
+    <code>Jean Dupont</code>
+    <code>DUPONT Jean</code>
+    <code>Dupont, Jean</code>
+    <code>10 Jean Dupont</code>
+    <code>1 Kévin Martin - Gardien</code>
+    <code>Paul Durand - Entraîneur</code>
+  </div>
+  <label>Liste des joueurs et du staff
+    <textarea name="text" rows="14" required placeholder="1 Kévin Martin - Gardien&#10;Jean Dupont&#10;DURAND Paul - Défenseur&#10;…"><%= text %></textarea>
+  </label>
+  <div class="form-grid">
+    <label>Poste par défaut (si non précisé)
+      <select name="default_position">
+        <% Object.entries(h.POSITIONS).forEach(([k, v]) => { %><option value="<%= k %>"<%= (typeof defaultPos !== 'undefined' ? defaultPos : 'MIL') === k ? ' selected' : '' %>><%= v.single %></option><% }) %>
+      </select>
+    </label>
+  </div>
+  <label class="check"><input type="checkbox" name="visible"<%= visible ? ' checked' : '' %>> Visibles sur le site tout de suite <span class="muted small">(décoche si tu attends l'accord des joueurs)</span></label>
+
+  <% if (rows) { %>
+    <h2>Aperçu (<%= rows.filter(r => !r.dup).length %> à ajouter)</h2>
+    <% if (!rows.length) { %><p class="flash flash--error">Aucun nom reconnu.</p><% } else { %>
+    <div class="table-wrap"><table class="admin-table">
+      <thead><tr><th>N°</th><th>Prénom</th><th>Nom</th><th>Poste</th><th></th></tr></thead>
+      <tbody>
+      <% rows.forEach(r => { %>
+        <tr class="<%= r.dup ? 'is-off' : '' %>">
+          <td><%= r.number ?? '' %></td><td><%= r.first_name %></td><td><strong><%= r.last_name %></strong></td>
+          <td><%= h.POSITIONS[r.position].single %><%= r.role ? ' · ' + r.role : '' %></td>
+          <td><%= r.dup ? 'Déjà présent, ignoré' : '' %></td>
+        </tr>
+      <% }) %>
+      </tbody>
+    </table></div>
+    <p class="muted small">Si un prénom et un nom sont inversés, corrige la ligne dans la zone de texte puis clique à nouveau sur « Aperçu ».</p>
+    <% } %>
+  <% } %>
+
+  <div class="form-actions">
+    <button class="btn btn--ghost" name="action" value="preview">👁️ Aperçu</button>
+    <% if (rows && rows.some(r => !r.dup)) { %><button class="btn" name="action" value="save">✅ Ajouter à l'effectif</button><% } %>
+  </div>
+</form>
+<%- include('_bottom') %>

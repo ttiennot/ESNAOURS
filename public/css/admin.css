@@ -134,3 +134,4 @@ input[data-fff-url].is-ok { border-color: var(--g-500) !important; background: v
 textarea.mono { font-family: ui-monospace, Menlo, Consolas, monospace !important; font-size: .8rem !important; }
 kbd { background: #fff; border: 1px solid var(--line); border-bottom-width: 2px; border-radius: 4px; padding: 0 5px; font-size: .85em; }
 .login-card > img { border-radius: 50%; box-shadow: 0 0 0 3px var(--lime); }
+.groupe-help { display: flex; flex-wrap: wrap; gap: 6px; margin: 0 0 12px; }
