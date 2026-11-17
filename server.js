@@ -37,7 +37,7 @@ app.use('/uploads', express.static(UPLOAD_DIR, { maxAge: '30d', immutable: true 
 app.get('/favicon.ico', (req, res) => res.redirect(301, '/static/img/crest.svg'));
 app.get('/robots.txt', (req, res) => res.type('text/plain').send('User-agent: *\nDisallow: /admin\n'));
 
-app.use(express.urlencoded({ extended: true, limit: '2mb' }));
+app.use(express.urlencoded({ extended: true, limit: '15mb' }));
 app.use(express.json({ limit: '1mb' }));
 app.use(cookieSession({
   name: 'esn_sess',

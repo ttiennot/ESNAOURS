@@ -1,0 +1,44 @@
+<%- include('_top') %>
+<div class="admin-head"><h1>Import FFF</h1><a href="/admin">← Tableau de bord</a></div>
+
+<% if (error) { %><div class="flash flash--error"><%= error %></div><% } %>
+<% if (result) { %>
+  <div class="flash flash--ok">
+    Import réussi :
+    <% if (result.matches) { %><%= result.matches %> match(s) lu(s), dont <strong><%= result.ours %></strong> de l'ES Naours enregistré(s).<% } %>
+    <% if (result.standings) { %>Classement mis à jour (<%= result.standings %> équipes, <%= result.source === 'officiel' ? 'classement officiel' : 'recalculé depuis les résultats' %>).<% } %>
+  </div>
+  <% if (result.hasNext) { %><div class="flash flash--info">Cette liste continue sur une page suivante : ouvre aussi le lien « page 2 » (puis « page 3 » si besoin) et colle-le de la même façon.</div><% } %>
+<% } %>
+
+<% if (!links) { %>
+  <p class="flash flash--error">Renseigne d'abord le n° de compétition et la poule dans <a href="/admin/reglages#fff">Réglages</a>.</p>
+<% } else { %>
+<section class="panel">
+  <h2>Comment faire (après chaque journée)</h2>
+  <p class="muted">La FFF refuse les requêtes venant du serveur, mais répond à ton navigateur. Depuis chez toi :</p>
+  <ol class="steps">
+    <li><strong>Ouvre un lien</strong> ci-dessous (il s'ouvre dans un nouvel onglet et affiche du texte brut).</li>
+    <li>Dans cet onglet : <kbd>Ctrl</kbd>+<kbd>A</kbd> puis <kbd>Ctrl</kbd>+<kbd>C</kbd> (sur téléphone : « Tout sélectionner » puis « Copier »).</li>
+    <li>Reviens ici, <strong>colle</strong> dans la zone et clique sur <strong>Importer</strong>. Recommence pour l'autre lien.</li>
+  </ol>
+  <div class="import-links">
+    <a class="btn" href="<%= links.results %>" target="_blank" rel="noopener">1. Résultats de toute la poule (classement)</a>
+    <a class="btn btn--ghost btn--sm" href="<%= links.resultsPage2 %>" target="_blank" rel="noopener">1 bis. Résultats – page 2</a>
+    <a class="btn btn--ghost btn--sm" href="<%= links.resultsPage3 %>" target="_blank" rel="noopener">1 ter. Résultats – page 3</a>
+    <% if (links.matches) { %><a class="btn" href="<%= links.matches %>" target="_blank" rel="noopener">2. Calendrier complet de l'ES Naours</a>
+    <% } else { %><span class="btn btn--ghost" aria-disabled="true" title="Disponible après le premier import du lien 1">2. Calendrier complet (après le lien 1)</span><% } %>
+    <a class="btn btn--ghost btn--sm" href="<%= links.standings %>" target="_blank" rel="noopener">Classement officiel (facultatif)</a>
+  </div>
+  <p class="muted small">Le lien 1 donne les résultats de toutes les équipes de la poule et sert à calculer le classement ; ses pages 2 et 3 ne sont utiles que si le site te le signale après import. Le lien 2 donne tous les matchs de l'ES Naours, y compris ceux à venir (il apparaît après le premier import du lien 1). Le « classement officiel » tient compte des éventuelles pénalités : s'il s'affiche correctement, colle-le en dernier.</p>
+</section>
+
+<form class="panel form" method="post" action="/admin/import">
+  <input type="hidden" name="_csrf" value="<%= csrf %>">
+  <label>Texte copié depuis la page FFF
+    <textarea name="data" rows="10" class="mono" placeholder='{"@context":"/api/contexts/MatchEntity", … }' required></textarea>
+  </label>
+  <div class="form-actions"><button class="btn">⬇️ Importer</button></div>
+</form>
+<% } %>
+<%- include('_bottom') %>

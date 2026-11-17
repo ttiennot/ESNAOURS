@@ -28,7 +28,9 @@ Configuration dans **Admin → Réglages → Synchronisation FFF** :
 3. Renseigner le **n° de club** dans tous les cas : il sert à reconnaître l'ES Naours dans les matchs.
 4. Enregistrer, puis **Synchroniser maintenant** depuis le tableau de bord.
 
-**Solution de secours :** si l'API refuse l'accès depuis le serveur (elle filtre certains hébergeurs), on peut saisir les matchs (*Matchs → + Match manuel*) et le classement (*Classement*) dans l'admin. Un match peut aussi être **verrouillé 🔒** pour que la synchro ne l'écrase pas. Les matchs de coupe et les matchs amicaux se saisissent toujours à la main.
+**Import par copier-coller (si la FFF bloque le serveur) :** la FFF refuse les requêtes venant des hébergeurs comme OVH, mais répond à un navigateur depuis une connexion classique. Dans **Admin → Import FFF**, ouvrir les liens proposés (résultats de la poule, puis calendrier du club), copier tout le texte affiché et le coller dans la zone d'import. Le calendrier, les scores et le classement sont mis à jour d'un coup. Penser alors à décocher la synchronisation automatique dans les Réglages.
+
+**Autre solution de secours :** on peut aussi saisir les matchs (*Matchs → + Match manuel*) et le classement (*Classement*) dans l'admin. Un match peut aussi être **verrouillé 🔒** pour que la synchro ne l'écrase pas. Les matchs de coupe et les matchs amicaux se saisissent toujours à la main.
 
 ## Installation sur le VPS OVH (54.37.9.20)
 

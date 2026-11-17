@@ -96,9 +96,17 @@ function normTime(t) {
   return `${m[1].padStart(2, '0')}:${(m[2] || '00')}`;
 }
 
+/*
+ * Reconnaît l'ES Naours. Attention : l'API a deux numéros de club différents.
+ * - club.cl_no (identifiant interne de l'API, ex. 201032) ;
+ * - le n° d'affiliation affiché par la FFF (ex. 561114), présent dans le logo « BC561114.jpg ».
+ * Les deux sont acceptés, ainsi que le nom d'équipe.
+ */
 function isUs(team, cfg) {
   const id = teamClubId(team);
-  if (cfg.clubId && id && id === String(cfg.clubId)) return true;
+  const wanted = String(cfg.clubId || '').trim();
+  if (wanted && id && id === wanted) return true;
+  if (/^\d+$/.test(wanted) && new RegExp(`BC0*${wanted}\\.`, 'i').test(teamLogo(team))) return true;
   const pat = (cfg.pattern || '').trim().toUpperCase();
   return !!pat && teamName(team).toUpperCase().includes(pat);
 }
@@ -271,7 +279,7 @@ async function fetchClubTeams(cfg) {
 }
 
 module.exports = {
-  getJson, members, getAll,
+  getJson, members, getAll, isUs, teamClubId, poulePath,
   normalizeMatch, normalizeStanding, dedupeStandings,
   fetchStandings, fetchMatches, fetchPouleMatches, fetchClubTeams, standingsFromMatches, seasonBounds, parisDate, normTime
 };

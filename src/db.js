@@ -121,6 +121,13 @@ CREATE TABLE IF NOT EXISTS albums (
   created_at TEXT DEFAULT CURRENT_TIMESTAMP
 );
 
+-- Résultats bruts de toute la poule (importés), pour recalculer le classement
+CREATE TABLE IF NOT EXISTS poule_results (
+  ma_no TEXT PRIMARY KEY,
+  data TEXT NOT NULL,
+  updated_at TEXT DEFAULT CURRENT_TIMESTAMP
+);
+
 CREATE TABLE IF NOT EXISTS photos (
   id INTEGER PRIMARY KEY AUTOINCREMENT,
   album_id INTEGER NOT NULL REFERENCES albums(id) ON DELETE CASCADE,

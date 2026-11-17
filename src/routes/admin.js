@@ -7,6 +7,7 @@ const { upload, saveImage, removeUpload } = require('../upload');
 const { syncAll, configFromSettings } = require('../sync');
 const fff = require('../fff');
 const { FORMATIONS } = require('../formations');
+const { importFffText, importLinks } = require('../importer');
 
 const router = express.Router();
 const csrf = auth.verifyCsrf;
@@ -69,6 +70,17 @@ router.post('/sync', csrf, async (req, res) => {
   const r = await syncAll();
   flash(req, r.ok ? 'ok' : 'error', r.ok ? `Synchronisation réussie : ${r.matches} matchs et ${r.standings} équipes au classement (${r.source === 'officiel' ? 'classement officiel' : 'classement recalculé depuis les résultats'}).` : `Échec de la synchronisation : ${r.error}`);
   res.redirect(req.get('referer') && req.get('referer').includes('/admin') ? req.get('referer') : '/admin');
+});
+
+/* ---------- Import FFF par copier-coller ---------- */
+router.get('/import', (req, res) => {
+  res.render('admin/import', { title: 'Import FFF', links: importLinks(), result: null, error: null });
+});
+router.post('/import', csrf, (req, res) => {
+  let result = null, error = null;
+  try { result = importFffText(req.body.data); }
+  catch (e) { error = e.message; }
+  res.render('admin/import', { title: 'Import FFF', links: importLinks(), result, error });
 });
 
 router.post('/fff/equipes', csrf, async (req, res) => {

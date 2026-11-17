@@ -20,12 +20,15 @@
     <% if (!settings.fff_cp_no || !settings.fff_poule) { %>
       <p class="flash flash--error">Non configurée. Renseigne les identifiants FFF dans <a href="/admin/reglages#fff">Réglages</a>.</p>
     <% } else { %>
-      <p>Dernière synchro réussie : <strong><%= settings.fff_last_sync ? h.fmtDateTime(settings.fff_last_sync) : 'jamais' %></strong></p>
+      <p>Dernière mise à jour : <strong><%= settings.fff_last_sync ? h.fmtDateTime(settings.fff_last_sync) : 'jamais' %></strong></p>
       <% if (settings.fff_standings_source) { %><p>Classement : <strong><%= settings.fff_standings_source === 'officiel' ? 'officiel FFF' : 'recalculé depuis les résultats' %></strong></p><% } %>
       <p>Automatique : <strong><%= settings.fff_auto_sync === '1' ? 'oui, toutes les 30 min' : 'désactivée' %></strong></p>
     <% } %>
     <% if (settings.fff_last_error) { %><p class="flash flash--error small">Dernière erreur : <%= settings.fff_last_error %></p><% } %>
-    <form method="post" action="/admin/sync"><input type="hidden" name="_csrf" value="<%= csrf %>"><button class="btn">🔄 Synchroniser maintenant</button></form>
+    <div class="btn-row">
+      <a class="btn" href="/admin/import">⬇️ Importer depuis la FFF</a>
+      <form method="post" action="/admin/sync"><input type="hidden" name="_csrf" value="<%= csrf %>"><button class="btn btn--ghost">🔄 Synchro automatique</button></form>
+    </div>
   </section>
 
   <section class="panel">

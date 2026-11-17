@@ -18,6 +18,42 @@ function isConfigured(cfg) {
   return !!(cfg.cpNo && cfg.poule);
 }
 
+/* ---------- Écriture en base (partagée par la synchro et l'import) ---------- */
+
+function saveStandings(rows) {
+  if (!rows.length) return;
+  db.exec('DELETE FROM standings');
+  const ins = db.prepare(`INSERT INTO standings (rank, team, logo, points, played, won, drawn, lost, forfeits, goals_for, goals_against, goal_diff, penalties, is_us)
+    VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?)`);
+  for (const r of rows) ins.run(r.rank, r.team, r.logo, r.points, r.played, r.won, r.drawn, r.lost, r.forfeits, r.goals_for, r.goals_against, r.goal_diff, r.penalties, r.is_us);
+}
+
+/** Ajoute ou met à jour les matchs de l'ES Naours (sauf matchs verrouillés). */
+function saveMatches(list) {
+  const find = db.prepare('SELECT id, locked FROM matches WHERE fff_id = ?');
+  const ins = db.prepare(`INSERT INTO matches (fff_id, source, competition, round, date, time, home_team, away_team, home_logo, away_logo, home_score, away_score, is_home, venue, status)
+    VALUES (?, 'fff', ?,?,?,?,?,?,?,?,?,?,?,?,?)`);
+  const upd = db.prepare(`UPDATE matches SET competition=?, round=?, date=?, time=?, home_team=?, away_team=?, home_logo=?, away_logo=?, home_score=?, away_score=?, is_home=?, venue=?, status=?, updated_at=CURRENT_TIMESTAMP WHERE id=?`);
+  let n = 0;
+  for (const m of list) {
+    if (!m.fff_id) continue;
+    const vals = [m.competition, m.round, m.date, m.time, m.home_team, m.away_team, m.home_logo, m.away_logo, m.home_score, m.away_score, m.is_home, m.venue, m.status];
+    const row = find.get(m.fff_id);
+    if (!row) ins.run(m.fff_id, ...vals);
+    else if (!row.locked) upd.run(...vals, row.id);
+    n++;
+  }
+  return n;
+}
+
+function markSynced(source) {
+  setSetting('fff_last_sync', new Date().toISOString());
+  setSetting('fff_last_error', '');
+  if (source) setSetting('fff_standings_source', source);
+}
+
+/* ---------- Synchronisation automatique (API FFF interrogée par le serveur) ---------- */
+
 let running = null;
 
 async function syncAll() {
@@ -34,28 +70,8 @@ async function syncAll() {
         fff.fetchStandings(cfg, pouleMatches),
         fff.fetchMatches(cfg, pouleMatches)
       ]);
-      tx(() => {
-        if (standings.length) {
-          db.exec('DELETE FROM standings');
-          const ins = db.prepare(`INSERT INTO standings (rank, team, logo, points, played, won, drawn, lost, forfeits, goals_for, goals_against, goal_diff, penalties, is_us)
-            VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?)`);
-          for (const r of standings) ins.run(r.rank, r.team, r.logo, r.points, r.played, r.won, r.drawn, r.lost, r.forfeits, r.goals_for, r.goals_against, r.goal_diff, r.penalties, r.is_us);
-        }
-        const find = db.prepare('SELECT id, locked FROM matches WHERE fff_id = ?');
-        const ins = db.prepare(`INSERT INTO matches (fff_id, source, competition, round, date, time, home_team, away_team, home_logo, away_logo, home_score, away_score, is_home, venue, status)
-          VALUES (?, 'fff', ?,?,?,?,?,?,?,?,?,?,?,?,?)`);
-        const upd = db.prepare(`UPDATE matches SET competition=?, round=?, date=?, time=?, home_team=?, away_team=?, home_logo=?, away_logo=?, home_score=?, away_score=?, is_home=?, venue=?, status=?, updated_at=CURRENT_TIMESTAMP WHERE id=?`);
-        for (const m of matches) {
-          if (!m.fff_id) continue;
-          const vals = [m.competition, m.round, m.date, m.time, m.home_team, m.away_team, m.home_logo, m.away_logo, m.home_score, m.away_score, m.is_home, m.venue, m.status];
-          const row = find.get(m.fff_id);
-          if (!row) ins.run(m.fff_id, ...vals);
-          else if (!row.locked) upd.run(...vals, row.id);
-        }
-      });
-      setSetting('fff_last_sync', new Date().toISOString());
-      setSetting('fff_last_error', '');
-      setSetting('fff_standings_source', source);
+      tx(() => { saveStandings(standings); saveMatches(matches); });
+      markSynced(source);
       return { ok: true, standings: standings.length, matches: matches.length, source };
     } catch (e) {
       setSetting('fff_last_error', `${new Date().toLocaleString('fr-FR', { timeZone: 'Europe/Paris' })} – ${e.message}`);
@@ -74,4 +90,4 @@ function startScheduler(intervalMinutes = 30) {
   return setInterval(tick, intervalMinutes * 60 * 1000);
 }
 
-module.exports = { syncAll, startScheduler, configFromSettings, isConfigured };
+module.exports = { syncAll, startScheduler, configFromSettings, isConfigured, saveStandings, saveMatches, markSynced };
