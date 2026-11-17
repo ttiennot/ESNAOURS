@@ -149,15 +149,29 @@
     $$('.team-choice').forEach(x => x.classList.toggle('is-picked', x === b));
   });
 
-  /* Réglages : extraction des identifiants depuis l'adresse de la page de la poule
-     ex. …/competition/engagement/444088-seniors-d5/phase/1/11/… */
+  /* Réglages : extraction des identifiants depuis une adresse FFF
+     - epreuves.fff.fr : …/competition/engagement/444088-seniors-d5/phase/1/11/…
+     - site du district : …/competitions?id=444088&poule=11&phase=1…
+     - page du club     : …/club/500123-… ou …?cl_no=500123 */
   const fffUrl = $('[data-fff-url]');
   if (fffUrl) fffUrl.addEventListener('input', () => {
-    const m = fffUrl.value.match(/engagement\/(\d+)[^/]*\/phase\/(\d+)\/(\d+)/);
-    fffUrl.classList.toggle('is-ok', !!m);
-    if (!m) return;
-    $('input[data-cp]').value = m[1];
-    $('input[data-phase]').value = m[2];
-    $('input[data-poule]').value = m[3];
+    const v = fffUrl.value.trim();
+    let cp, phase, poule;
+    const a = v.match(/engagement\/(\d+)[^/]*\/phase\/(\d+)\/(\d+)/);
+    if (a) [, cp, phase, poule] = a;
+    else {
+      try {
+        const q = new URL(v).searchParams;
+        cp = q.get('id') || q.get('cp_no');
+        poule = q.get('poule') || q.get('gp_no');
+        phase = q.get('phase') || '1';
+      } catch { /* pas une adresse complète */ }
+    }
+    const club = v.match(/\/club\/(\d+)/) || v.match(/[?&]cl_no=(\d+)/);
+    if (club) $('input[data-club-id]').value = club[1];
+    if (cp && /^\d+$/.test(cp)) $('input[data-cp]').value = cp;
+    if (phase && /^\d+$/.test(phase)) $('input[data-phase]').value = phase;
+    if (poule && /^\d+$/.test(poule)) $('input[data-poule]').value = poule;
+    fffUrl.classList.toggle('is-ok', !!(club || (cp && poule)));
   });
 })();
