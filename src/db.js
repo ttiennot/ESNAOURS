@@ -121,6 +121,25 @@ CREATE TABLE IF NOT EXISTS albums (
   created_at TEXT DEFAULT CURRENT_TIMESTAMP
 );
 
+-- Faits de match : buts, cartons, remplacements…
+CREATE TABLE IF NOT EXISTS match_events (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  match_id INTEGER NOT NULL REFERENCES matches(id) ON DELETE CASCADE,
+  type TEXT NOT NULL,             -- goal, penalty, own_goal, yellow, second_yellow, red, sub, missed_penalty, note
+  side TEXT NOT NULL DEFAULT 'us',-- équipe concernée (pour un CSC : l'équipe qui marque le but)
+  minute INTEGER,
+  minute_extra INTEGER,           -- temps additionnel (45+2)
+  player_id INTEGER REFERENCES players(id) ON DELETE SET NULL,
+  player_name TEXT,               -- nom affiché (copie, ou joueur adverse)
+  assist_id INTEGER REFERENCES players(id) ON DELETE SET NULL,
+  assist_name TEXT,
+  player2_id INTEGER REFERENCES players(id) ON DELETE SET NULL,  -- remplacement : joueur entrant
+  player2_name TEXT,
+  note TEXT,
+  created_at TEXT DEFAULT CURRENT_TIMESTAMP
+);
+CREATE INDEX IF NOT EXISTS idx_events_match ON match_events(match_id);
+
 -- Résultats bruts de toute la poule (importés), pour recalculer le classement
 CREATE TABLE IF NOT EXISTS poule_results (
   ma_no TEXT PRIMARY KEY,

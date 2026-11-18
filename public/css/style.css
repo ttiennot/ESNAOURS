@@ -465,3 +465,69 @@ h3.sub { font-family: var(--font); font-size: .75rem; font-weight: 700; text-tra
   .standings--compact .team-name { max-width: 120px; }
   .standings--compact .team-cell { gap: 8px; }
 }
+
+/* ---------- Faits de match ---------- */
+.ev-icon { display: inline-block; width: 18px; height: 18px; flex: none; vertical-align: -3px; background: center / contain no-repeat; }
+.ev-icon--goal, .ev-icon--penalty { background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Ccircle cx='12' cy='12' r='10.5' fill='%23fff' stroke='%230A1F15' stroke-width='1.6'/%3E%3Cpath d='M12 7.2l4.3 3.1-1.6 5h-5.4l-1.6-5z' fill='%230A1F15'/%3E%3Cpath d='M12 7.2V2.6M16.3 10.3l4.4-1.4M14.7 15.3l2.7 3.8M9.3 15.3l-2.7 3.8M7.7 10.3L3.3 8.9' stroke='%230A1F15' stroke-width='1.4'/%3E%3C/svg%3E"); }
+.ev-icon--own_goal { background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Ccircle cx='12' cy='12' r='10.5' fill='%23FDE7E7' stroke='%23B42318' stroke-width='1.6'/%3E%3Cpath d='M12 7.2l4.3 3.1-1.6 5h-5.4l-1.6-5z' fill='%23B42318'/%3E%3C/svg%3E"); }
+.ev-icon--missed_penalty { background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Ccircle cx='12' cy='12' r='10.5' fill='%23fff' stroke='%235B6B62' stroke-width='1.6'/%3E%3Cpath d='M12 7.2l4.3 3.1-1.6 5h-5.4l-1.6-5z' fill='%235B6B62'/%3E%3Cpath d='M4 20L20 4' stroke='%23D93036' stroke-width='2.4' stroke-linecap='round'/%3E%3C/svg%3E"); }
+.ev-icon--yellow, .ev-icon--red, .ev-icon--second_yellow { width: 13px; height: 17px; border-radius: 3px; background: #F5C518; box-shadow: 0 1px 2px rgba(0,0,0,.2); vertical-align: -3px; }
+.ev-icon--red { background: var(--loss); }
+.ev-icon--second_yellow { background: linear-gradient(135deg, #F5C518 0 50%, var(--loss) 50% 100%); }
+.ev-icon--sub { background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke-width='2.4' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M8 20V5M4 9l4-4 4 4' stroke='%2315803D'/%3E%3Cpath d='M16 4v15M12 15l4 4 4-4' stroke='%23D93036'/%3E%3C/svg%3E"); }
+.ev-icon--note { background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Ccircle cx='12' cy='12' r='10.5' fill='%23E8F5D2' stroke='%232D5A0E' stroke-width='1.6'/%3E%3Cpath d='M12 11v6' stroke='%232D5A0E' stroke-width='2.2' stroke-linecap='round'/%3E%3Ccircle cx='12' cy='7.6' r='1.4' fill='%232D5A0E'/%3E%3C/svg%3E"); }
+
+/* Buteurs sous le score */
+.mh-scorers { display: grid; grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr); gap: 16px; max-width: 780px; margin: -4px auto 18px; font-size: .9rem; color: var(--on-dark); }
+.mh-scorers ul { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 3px; }
+.mh-scorers li { display: flex; align-items: center; gap: 6px; justify-content: center; flex-wrap: wrap; }
+.mh-scorers a { color: #fff; font-weight: 600; text-decoration: none; }
+.mh-scorers a:hover { color: var(--accent); }
+.mh-scorers .ev-icon { width: 14px; height: 14px; filter: invert(1); }
+.mh-scorers > span { width: 60px; }
+
+/* Chronologie publique */
+.timeline { list-style: none; margin: 0; padding: 0; position: relative; }
+.timeline::before { content: ""; position: absolute; left: 50%; top: 0; bottom: 0; width: 2px; background: var(--line); transform: translateX(-50%); }
+.tl-item { display: grid; grid-template-columns: minmax(0, 1fr) 56px minmax(0, 1fr); align-items: center; gap: 12px; padding: 7px 0; position: relative; }
+.tl-min { justify-self: center; z-index: 1; min-width: 46px; text-align: center; padding: 4px 6px; border-radius: 999px; background: var(--night); color: #fff; font-family: var(--display); font-weight: 800; font-size: 1rem; line-height: 1.2; }
+.tl-ev { display: flex; align-items: center; gap: 10px; min-width: 0; }
+.tl-ev--home { grid-column: 1; justify-content: flex-start; text-align: right; flex-direction: row-reverse; }
+.tl-ev--away { grid-column: 3; }
+.tl-item .tl-min { grid-column: 2; grid-row: 1; }
+.tl-ev:empty { visibility: hidden; }
+.tl-text { display: flex; flex-direction: column; line-height: 1.25; min-width: 0; }
+.tl-text strong { font-weight: 700; }
+.tl-text strong a { color: inherit; text-decoration: none; }
+.tl-text strong a:hover { color: var(--green); }
+.tl-text span { font-size: .8rem; color: var(--muted); }
+.tl-item.is-us .tl-text strong { color: var(--ink); }
+.tl-item.is-goal .tl-ev:not(:empty) { background: var(--us-row); border-radius: 12px; padding: 6px 10px; }
+.tl-item.is-goal.is-them .tl-ev:not(:empty) { background: #F1F3F1; }
+.tl-ht { text-align: center; margin: 6px 0; position: relative; z-index: 1; }
+.tl-ht span { display: inline-block; background: #fff; border: 1px solid var(--line-2); border-radius: 999px; padding: 3px 12px; font-size: .72rem; font-weight: 700; letter-spacing: .12em; text-transform: uppercase; color: var(--muted); }
+.tl-head { display: grid; grid-template-columns: minmax(0, 1fr) 56px minmax(0, 1fr); gap: 12px; margin-bottom: 8px; font-family: var(--display); font-weight: 800; font-size: 1.1rem; text-transform: uppercase; }
+.tl-head span:first-child { text-align: right; }
+.tl-head span:last-child { grid-column: 3; }
+.card-stats { display: flex; flex-wrap: wrap; gap: 8px 18px; margin-top: 16px; padding-top: 14px; border-top: 1px solid var(--line); font-size: .85rem; color: var(--muted); }
+.card-stats b { color: var(--ink); }
+@media (max-width: 640px) {
+  .timeline::before { left: 26px; }
+  .tl-item, .tl-head { grid-template-columns: 52px minmax(0, 1fr); }
+  .tl-item .tl-min { grid-column: 1; }
+  .tl-ev--home, .tl-ev--away { grid-column: 2; grid-row: 1; flex-direction: row; justify-content: flex-start; text-align: left; }
+  .tl-ev:empty { display: none; }
+  .tl-head { display: none; }
+  .tl-ev .tl-team { display: block; }
+  .tl-ht { text-align: left; padding-left: 0; }
+  .mh-scorers { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 10px; font-size: .8rem; }
+  .mh-scorers > span { display: none; }
+}
+.tl-team { display: none; font-size: .72rem; font-weight: 700; color: var(--muted); }
+[hidden] { display: none !important; }
+.tl-ev--home { justify-self: end; }
+.tl-ev--away { justify-self: start; }
+.mh-when span.pill--V { color: var(--deep); }
+.mh-when span.pill--N { color: var(--draw-ink); }
+.mh-when span.pill--D { color: #fff; }
+@media (max-width: 640px) { .tl-ev--home, .tl-ev--away { justify-self: start; } }

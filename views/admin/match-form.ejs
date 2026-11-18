@@ -20,7 +20,7 @@
     <label class="check"><input type="checkbox" name="is_home"<%= m.is_home ? ' checked' : '' %>> L'ES Naours joue à domicile</label>
     <label class="check"><input type="checkbox" name="locked"<%= m.locked ? ' checked' : '' %>> 🔒 Verrouiller (ne pas écraser par la synchro FFF)</label>
   </div>
-  <div class="form-actions"><button class="btn">Enregistrer</button><% if (m.id) { %><a class="btn btn--ghost" href="/admin/compo/<%= m.id %>">⚽ Composition</a><% } %></div>
+  <div class="form-actions"><button class="btn">Enregistrer</button><% if (m.id) { %><a class="btn btn--ghost" href="/admin/compo/<%= m.id %>">Composition</a><a class="btn btn--ghost" href="/admin/matchs/<%= m.id %>/faits">Faits de match</a><% } %></div>
 </form>
 <% if (m.id) { %>
 <form method="post" action="/admin/matchs/<%= m.id %>/delete" data-confirm="Supprimer ce match (et sa compo) ?" class="danger-zone">

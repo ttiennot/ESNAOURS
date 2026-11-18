@@ -135,3 +135,25 @@ textarea.mono { font-family: ui-monospace, Menlo, Consolas, monospace !important
 kbd { background: #fff; border: 1px solid var(--line); border-bottom-width: 2px; border-radius: 4px; padding: 0 5px; font-size: .85em; }
 .login-card > img { border-radius: 50%; box-shadow: 0 0 0 3px var(--lime); }
 .groupe-help { display: flex; flex-wrap: wrap; gap: 6px; margin: 0 0 12px; }
+
+/* Faits de match */
+.faits-layout { display: grid; grid-template-columns: minmax(0, 1.1fr) minmax(0, 1fr); gap: 18px; align-items: start; }
+@media (max-width: 900px) { .faits-layout { grid-template-columns: 1fr; } }
+.faits-layout .panel { margin: 0; }
+.pills { border: 0; padding: 0; margin: 0 0 14px; display: flex; flex-wrap: wrap; gap: 6px; }
+.pills--2 .pill-choice { flex: 1 1 0; }
+.pill-choice { cursor: pointer; margin: 0 !important; }
+.pill-choice input { position: absolute; opacity: 0; pointer-events: none; }
+.pill-choice span { display: flex; align-items: center; justify-content: center; gap: 7px; min-height: 42px; padding: 0 14px; border-radius: 999px; border: 1px solid var(--line-2); background: #fff; font-weight: 600; font-size: .88rem; }
+.pill-choice input:checked + span { background: var(--night); color: #fff; border-color: var(--night); }
+.pill-choice input:focus-visible + span { outline: 2px solid var(--accent); outline-offset: 2px; }
+.pill-choice input:checked + span .ev-icon--goal, .pill-choice input:checked + span .ev-icon--penalty { filter: invert(1); }
+.minute-row { display: grid; grid-template-columns: 1fr 110px; gap: 12px; }
+.small-input { font-weight: 500 !important; font-size: .8rem !important; }
+.faits-list { list-style: none; padding: 0; margin: 0; }
+.faits-list li { display: flex; align-items: center; gap: 10px; padding: 9px 0; border-bottom: 1px solid var(--line); }
+.faits-list li.is-them { opacity: .8; }
+.fl-min { font-family: var(--display); font-weight: 800; font-size: 1.1rem; min-width: 46px; }
+.fl-body { flex: 1; font-size: .9rem; line-height: 1.3; }
+.fl-body span { color: var(--muted); }
+.faits-list form { margin: 0; }

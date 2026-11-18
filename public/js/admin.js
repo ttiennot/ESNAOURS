@@ -174,4 +174,34 @@
     if (poule && /^\d+$/.test(poule)) $('input[data-poule]').value = poule;
     fffUrl.classList.toggle('is-ok', !!(club || (cp && poule)));
   });
+
+  /* Faits de match : n'affiche que les champs utiles selon le type et l'équipe */
+  const faits = $('[data-faits]');
+  if (faits) {
+    const LABELS = { sub: 'Joueur sortant', own_goal: 'Joueur qui marque contre son camp', missed_penalty: 'Tireur', note: 'Joueur concerné (facultatif)' };
+    const update = () => {
+      const type = (faits.querySelector('input[name=type]:checked') || {}).value || 'goal';
+      const side = (faits.querySelector('input[name=side]:checked') || {}).value || 'us';
+      const usPlayer = (side === 'us') !== (type === 'own_goal');
+      const show = {
+        'us-player': usPlayer,
+        'them-player': !usPlayer,
+        'assist-us': type === 'goal' && side === 'us',
+        'assist-them': type === 'goal' && side === 'them',
+        'sub-us': type === 'sub' && side === 'us',
+        'sub-them': type === 'sub' && side === 'them'
+      };
+      $$('[data-show]', faits).forEach(el => {
+        const on = !!show[el.dataset.show];
+        el.hidden = !on;
+        // un champ masqué n'est pas envoyé (évite d'enregistrer une valeur oubliée)
+        $$('input, select', el).forEach(i => { i.disabled = !on; });
+      });
+      $$('[data-label-player]', faits).forEach(l => {
+        l.textContent = LABELS[type] || (usPlayer ? (type === 'goal' || type === 'penalty' ? 'Buteur' : 'Joueur') : 'Joueur adverse');
+      });
+    };
+    faits.addEventListener('change', update);
+    update();
+  }
 })();

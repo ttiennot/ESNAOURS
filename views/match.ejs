@@ -11,9 +11,17 @@
       </div>
       <div class="mh-team"><%- h.badge(m.away_team, m.away_logo, { us: !m.is_home, settings, size: 'xl' }) %><span><%= m.away_team %></span></div>
     </div>
+    <% const awaySide = homeSide === 'us' ? 'them' : 'us'; if (scorers.us.length || scorers.them.length) { %>
+    <div class="mh-scorers" aria-label="Buteurs">
+      <% [homeSide, awaySide].forEach((side, i) => { %>
+        <ul><% scorers[side].forEach(s => { %><li><i class="ev-icon ev-icon--goal" aria-hidden="true"></i><% if (s.playerId) { %><a href="/effectif/<%= s.playerId %>"><%= s.name %></a><% } else { %><span><%= s.name %></span><% } %> <span><%= s.times.join(', ') %></span></li><% }) %></ul>
+        <% if (i === 0) { %><span></span><% } %>
+      <% }) %>
+    </div>
+    <% } %>
     <div class="mh-when">
       <%= h.fmtDate(m.date, { long: true, year: true }) %><%= m.time ? ' · ' + m.time.replace(':', 'h') : '' %>
-      <% if (m.venue) { %><br><span>📍 <%= m.venue %></span><% } %>
+      <% if (m.venue) { %><br><span><%= m.venue %></span><% } %>
       <% if (m.status) { %><br><span class="tag tag--warn"><%= m.status %></span><% } %>
       <% if (res) { %><br><span class="pill pill--<%= res %> pill--lg"><%= { V: 'Victoire', N: 'Match nul', D: 'Défaite' }[res] %></span><% } %>
     </div>
@@ -23,6 +31,7 @@
 <%- include('partials/masthead-end') %>
 
 <div class="wrap page">
+  <% if (evs.length) { %><%- include('partials/match-events') %><% } %>
   <section class="card" id="compo">
     <div class="card-head"><h2>Composition</h2><% if (lineup) { %><span class="tag"><%= lineup.formation %></span><% } %></div>
     <% if (lineup) { %>
@@ -51,6 +60,6 @@
     <div class="btn-row"><% albums.forEach(a => { %><a class="btn" href="/photos/<%= a.id %>">📷 <%= a.title %></a><% }) %></div>
   </section>
   <% } %>
-  <% if (isAdmin) { %><p class="admin-shortcuts"><a class="btn btn--ghost" href="/admin/compo/<%= m.id %>">✏️ Éditer la compo</a> <a class="btn btn--ghost" href="/admin/photos/new?match=<%= m.id %>">📷 Ajouter un album</a></p><% } %>
+  <% if (isAdmin) { %><p class="admin-shortcuts"><a class="btn btn--ghost" href="/admin/matchs/<%= m.id %>/faits">Saisir les faits de match</a> <a class="btn btn--ghost" href="/admin/compo/<%= m.id %>">Éditer la compo</a> <a class="btn btn--ghost" href="/admin/photos/new?match=<%= m.id %>">📷 Ajouter un album</a></p><% } %>
 </div>
 <%- include('partials/footer') %>

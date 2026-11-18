@@ -1,0 +1,83 @@
+<%- include('_top') %>
+<% const opp = m.is_home ? m.away_team : m.home_team; const usScore = m.is_home ? m.home_score : m.away_score; const themScore = m.is_home ? m.away_score : m.home_score; %>
+<div class="admin-head">
+  <h1>Faits de match</h1>
+  <div class="btn-row"><a class="btn btn--ghost btn--sm" href="/match/<%= m.id %>" target="_blank">Voir la fiche ↗</a><a href="/admin/matchs">← Matchs</a></div>
+</div>
+<p class="big"><strong><%= m.home_team %></strong> <%= m.home_score != null ? m.home_score + ' – ' + m.away_score : 'vs' %> <strong><%= m.away_team %></strong> · <%= h.fmtDate(m.date, { long: true, year: true }) %></p>
+<% if (m.home_score != null && (goals.us !== usScore || goals.them !== themScore)) { %>
+  <p class="flash flash--info">Buts saisis : ES Naours <strong><%= goals.us %></strong> / <%= usScore %> · <%= opp %> <strong><%= goals.them %></strong> / <%= themScore %>. Il manque des buts par rapport au score (ou il y en a en trop).</p>
+<% } %>
+
+<div class="faits-layout">
+  <form class="panel form faits-form" method="post" action="/admin/matchs/<%= m.id %>/faits" data-faits>
+    <input type="hidden" name="_csrf" value="<%= csrf %>">
+    <h2>Ajouter</h2>
+
+    <fieldset class="pills" aria-label="Type">
+      <% Object.entries(TYPES).forEach(([k, t]) => { %>
+        <label class="pill-choice pill-choice--<%= k %>"><input type="radio" name="type" value="<%= k %>"<%= last.type === k ? ' checked' : '' %>><span><i class="ev-icon ev-icon--<%= k %>" aria-hidden="true"></i><%= t.label %></span></label>
+      <% }) %>
+    </fieldset>
+
+    <fieldset class="pills pills--2" aria-label="Équipe">
+      <label class="pill-choice"><input type="radio" name="side" value="us"<%= last.side !== 'them' ? ' checked' : '' %>><span>ES Naours</span></label>
+      <label class="pill-choice"><input type="radio" name="side" value="them"<%= last.side === 'them' ? ' checked' : '' %>><span><%= opp %></span></label>
+    </fieldset>
+
+    <div class="minute-row">
+      <label>Minute<input type="number" name="minute" min="0" max="130" inputmode="numeric" placeholder="ex. 67" autofocus></label>
+      <label>Temps add.<input type="number" name="minute_extra" min="1" max="30" inputmode="numeric" placeholder="+"></label>
+    </div>
+
+    <% const playerOptions = (name) => { %>
+      <select name="<%= name %>">
+        <option value="">—</option>
+        <% if (squad.length) { %><optgroup label="Sur la compo du match"><% squad.forEach(p => { %><option value="<%= p.id %>"><%= p.number ? p.number + '. ' : '' %><%= p.first_name %> <%= p.last_name %></option><% }) %></optgroup><% } %>
+        <optgroup label="<%= squad.length ? 'Autres joueurs' : 'Effectif' %>"><% others.forEach(p => { %><option value="<%= p.id %>"><%= p.number ? p.number + '. ' : '' %><%= p.first_name %> <%= p.last_name %></option><% }) %></optgroup>
+      </select>
+    <% } %>
+
+    <div data-show="us-player">
+      <label><span data-label-player>Joueur</span><% playerOptions('player_id') %></label>
+      <label class="small-input">Pas dans la liste ? Nom libre<input name="player_name_free" placeholder="Prénom Nom"></label>
+    </div>
+    <label data-show="them-player"><span data-label-player>Joueur adverse</span> <span class="muted small">(facultatif)</span><input name="player_name" placeholder="Nom du joueur"></label>
+
+    <label data-show="assist-us">Passeur décisif <span class="muted small">(facultatif)</span><% playerOptions('assist_id') %></label>
+    <label data-show="assist-them">Passeur <span class="muted small">(facultatif)</span><input name="assist_name" placeholder="Nom du passeur"></label>
+
+    <label data-show="sub-us">Joueur entrant<% playerOptions('player2_id') %></label>
+    <label data-show="sub-them">Joueur entrant <span class="muted small">(facultatif)</span><input name="player2_name"></label>
+
+    <label>Précision <span class="muted small">(facultatif)</span><input name="note" placeholder="ex. frappe en lucarne, contestation, blessure…"></label>
+    <div class="form-actions"><button class="btn">Ajouter</button></div>
+  </form>
+
+  <section class="panel">
+    <h2>Chronologie (<%= list.length %>)</h2>
+    <% if (!list.length) { %><p class="muted">Aucun fait saisi pour ce match.</p><% } else { %>
+    <ul class="faits-list">
+      <% list.forEach(e => { %>
+        <li class="<%= e.side === 'us' ? 'is-us' : 'is-them' %>">
+          <span class="fl-min"><%= e.time || '–' %></span>
+          <i class="ev-icon ev-icon--<%= e.type %>" aria-hidden="true"></i>
+          <span class="fl-body">
+            <strong><%= e.def.label %></strong> · <%= e.side === 'us' ? 'ES Naours' : opp %>
+            <br><span><%= e.type === 'sub' ? (e.who2 || '?') + ' remplace ' + (e.who || '?') : (e.who || (e.side === 'them' ? 'Adversaire' : '')) %><%= e.assist ? ' · passe de ' + e.assist : '' %><%= e.note ? ' · ' + e.note : '' %></span>
+          </span>
+          <form method="post" action="/admin/matchs/<%= m.id %>/faits/<%= e.id %>/delete" data-confirm="Supprimer ce fait de match ?">
+            <input type="hidden" name="_csrf" value="<%= csrf %>"><button class="linkish danger small" aria-label="Supprimer">Supprimer</button>
+          </form>
+        </li>
+      <% }) %>
+    </ul>
+    <% } %>
+    <hr>
+    <p class="muted small">Les fiches joueurs (buts, passes, cartons, matchs joués) peuvent être mises à jour automatiquement à partir des faits de match et des compos :</p>
+    <form method="post" action="/admin/stats/recalcul" data-confirm="Remplacer les statistiques saisies à la main par le calcul automatique ?">
+      <input type="hidden" name="_csrf" value="<%= csrf %>"><button class="btn btn--ghost btn--sm">Recalculer les stats des joueurs</button>
+    </form>
+  </section>
+</div>
+<%- include('_bottom') %>

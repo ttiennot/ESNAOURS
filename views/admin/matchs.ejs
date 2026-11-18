@@ -19,7 +19,7 @@
       <td><%= m.home_score != null ? m.home_score + ' – ' + m.away_score : '' %></td>
       <td><span class="tag<%= m.source === 'fff' ? ' tag--ok' : '' %>"><%= m.source === 'fff' ? 'FFF' : 'Manuel' %></span><%= m.locked ? ' 🔒' : '' %></td>
       <td><a class="btn btn--sm<%= l === undefined ? ' btn--ghost' : '' %>" href="/admin/compo/<%= m.id %>"><%= l === undefined ? 'Saisir' : l ? '✓ Publiée' : 'Brouillon' %></a></td>
-      <td class="actions"><a href="/admin/matchs/<%= m.id %>">Modifier</a> · <a href="/admin/photos/new?match=<%= m.id %>">Album</a></td>
+      <td class="actions"><a href="/admin/matchs/<%= m.id %>/faits"><strong>Faits de match</strong></a> · <a href="/admin/matchs/<%= m.id %>">Modifier</a> · <a href="/admin/photos/new?match=<%= m.id %>">Album</a></td>
     </tr>
   <% }) %>
   </tbody>

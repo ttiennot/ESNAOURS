@@ -1,0 +1,41 @@
+<%# Faits de match (chronologie). Variables : m, evs, homeSide, cardCount, h %>
+<% const sideName = s => s === homeSide ? m.home_team : m.away_team; %>
+<% const awaySide = homeSide === 'us' ? 'them' : 'us'; %>
+<section class="card" id="faits" aria-labelledby="h-faits">
+  <div class="card-head"><h2 id="h-faits">Faits de match</h2></div>
+  <div class="tl-head" aria-hidden="true"><span><%= m.home_team %></span><span></span><span><%= m.away_team %></span></div>
+  <ol class="timeline">
+    <% let htShown = false; const hasFirst = evs.some(e => e.minute != null && e.minute <= 45); %>
+    <% evs.forEach(e => { %>
+      <% if (!htShown && hasFirst && e.minute != null && e.minute > 45) { htShown = true; %><li class="tl-ht"><span>Mi-temps</span></li><% } %>
+      <%
+        const isHome = e.side === homeSide;
+        const linkId = e.side === 'us' ? (e.type === 'own_goal' ? null : e.player_id) : (e.type === 'own_goal' ? e.player_id : null);
+        let main = e.who || (e.side === 'them' ? 'Joueur adverse' : '');
+        let detail = '';
+        if (e.type === 'sub') { main = e.who2 || 'Entrée'; detail = 'remplace ' + (e.who || '?'); }
+        else if (e.type === 'goal') detail = e.assist ? 'Passe décisive : ' + e.assist : 'But';
+        else detail = e.def.label;
+        if (e.type === 'note' && !e.who) { main = e.note; }
+        else if (e.note) detail += ' · ' + e.note;
+      %>
+      <li class="tl-item <%= e.side === 'us' ? 'is-us' : 'is-them' %><%= e.def.goal ? ' is-goal' : '' %>">
+        <div class="tl-ev tl-ev--home"><% if (isHome) { %>
+          <i class="ev-icon ev-icon--<%= e.type %>" aria-hidden="true"></i>
+          <span class="tl-text"><strong><% if (linkId && e.type !== 'sub') { %><a href="/effectif/<%= linkId %>"><%= main %></a><% } else { %><%= main %><% } %></strong><span><%= detail %></span><span class="tl-team"><%= sideName(e.side) %></span></span>
+        <% } %></div>
+        <span class="tl-min"><%= e.time || '–' %></span>
+        <div class="tl-ev tl-ev--away"><% if (!isHome) { %>
+          <i class="ev-icon ev-icon--<%= e.type %>" aria-hidden="true"></i>
+          <span class="tl-text"><strong><% if (linkId && e.type !== 'sub') { %><a href="/effectif/<%= linkId %>"><%= main %></a><% } else { %><%= main %><% } %></strong><span><%= detail %></span><span class="tl-team"><%= sideName(e.side) %></span></span>
+        <% } %></div>
+      </li>
+    <% }) %>
+  </ol>
+  <% const ch = cardCount(homeSide), ca = cardCount(awaySide); if (ch.y + ch.r + ca.y + ca.r > 0) { %>
+    <div class="card-stats">
+      <span><i class="ev-icon ev-icon--yellow" aria-hidden="true"></i> Cartons jaunes : <b><%= m.home_team %> <%= ch.y %></b> · <b><%= m.away_team %> <%= ca.y %></b></span>
+      <% if (ch.r + ca.r) { %><span><i class="ev-icon ev-icon--red" aria-hidden="true"></i> Expulsions : <b><%= m.home_team %> <%= ch.r %></b> · <b><%= m.away_team %> <%= ca.r %></b></span><% } %>
+    </div>
+  <% } %>
+</section>

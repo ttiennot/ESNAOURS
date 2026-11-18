@@ -9,6 +9,7 @@ const fff = require('../fff');
 const { FORMATIONS } = require('../formations');
 const { importFffText, importLinks } = require('../importer');
 const { parseRoster } = require('../roster');
+const events = require('../events');
 
 const router = express.Router();
 const csrf = auth.verifyCsrf;
@@ -180,6 +181,39 @@ router.post('/matchs/save', csrf, (req, res) => {
   flash(req, 'ok', 'Match enregistré.');
   res.redirect('/admin/matchs');
 });
+/* ---------- Faits de match ---------- */
+router.get('/matchs/:id/faits', (req, res, next) => {
+  const m = q.match(int(req.params.id));
+  if (!m) return next();
+  const lineup = q.lineup(m.id);
+  const inLineup = new Set(lineup ? [...lineup.slots, ...lineup.subs].filter(Boolean).map(Number) : []);
+  const players = q.players(true).filter(p => p.position !== 'STAFF');
+  res.render('admin/faits', {
+    title: 'Faits de match', m, TYPES: events.TYPES,
+    list: events.list(m.id), goals: events.goalCount(m.id),
+    squad: players.filter(p => inLineup.has(p.id)), others: players.filter(p => !inLineup.has(p.id)),
+    last: { type: req.query.type || 'goal', side: req.query.side || 'us', minute: req.query.minute || '' }
+  });
+});
+router.post('/matchs/:id/faits', csrf, (req, res, next) => {
+  const m = q.match(int(req.params.id));
+  if (!m) return next();
+  try { events.add(m.id, req.body); flash(req, 'ok', `${(events.TYPES[req.body.type] || events.TYPES.note).label} ajouté.`); }
+  catch (e) { flash(req, 'error', e.message); }
+  // on garde le type et l'équipe pour enchaîner les saisies
+  res.redirect(`/admin/matchs/${m.id}/faits?type=${encodeURIComponent(req.body.type || 'goal')}&side=${req.body.side === 'them' ? 'them' : 'us'}`);
+});
+router.post('/matchs/:id/faits/:eid/delete', csrf, (req, res) => {
+  events.remove(int(req.params.id), int(req.params.eid));
+  flash(req, 'ok', 'Fait de match supprimé.');
+  res.redirect(`/admin/matchs/${int(req.params.id)}/faits`);
+});
+router.post('/stats/recalcul', csrf, (req, res) => {
+  const n = events.recomputePlayerStats();
+  flash(req, 'ok', `Statistiques recalculées pour ${n} joueurs (matchs d'après les compos, buts, passes et cartons d'après les faits de match).`);
+  res.redirect('/admin/joueurs');
+});
+
 router.post('/matchs/:id/delete', csrf, (req, res) => {
   db.prepare('DELETE FROM matches WHERE id = ?').run(int(req.params.id));
   flash(req, 'ok', 'Match supprimé (il réapparaîtra à la prochaine synchro s\'il vient de la FFF).');

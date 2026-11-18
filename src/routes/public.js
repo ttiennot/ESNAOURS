@@ -2,6 +2,7 @@
 const express = require('express');
 const { q, hydrateLineup } = require('../queries');
 const { POSITIONS } = require('../helpers');
+const events = require('../events');
 
 const router = express.Router();
 const id = v => Number.parseInt(v, 10) || 0;
@@ -67,8 +68,13 @@ router.get('/match/:id', (req, res, next) => {
   const m = q.match(id(req.params.id));
   if (!m) return next();
   const l = q.lineup(m.id);
+  const evs = events.list(m.id);
+  const homeSide = m.is_home ? 'us' : 'them';
+  const cards = side => evs.filter(e => e.side === side && ['yellow', 'second_yellow', 'red'].includes(e.type));
   res.render('match', {
     title: `${m.home_team} – ${m.away_team}`,
+    evs, homeSide, scorers: events.scorers(evs),
+    cardCount: side => ({ y: cards(side).filter(e => e.type !== 'red').length, r: cards(side).filter(e => e.type !== 'yellow').length }),
     m,
     lineup: l && (l.published || res.locals.isAdmin) ? hydrateLineup(l) : null,
     albums: q.albumsForMatch(m.id)
