@@ -4,6 +4,7 @@
   <h1><%= album.title %></h1>
   <p class="page-sub"><%= album.date ? h.fmtDate(album.date, { long: true, year: true }) : '' %><% if (album.home_score != null) { %> · Score : <%= album.home_score %> – <%= album.away_score %><% } %><% if (album.match_id) { %> · <a href="/match/<%= album.match_id %>">Fiche du match</a><% } %></p>
 </div></section>
+<%- include('partials/masthead-end') %>
 <div class="wrap page">
   <% if (album.description) { %><div class="card prose"><%- h.md(album.description) %></div><% } %>
   <% if (photos.length) { %>

@@ -80,11 +80,20 @@ function slugify(s) {
 module.exports = { escapeHtml, md, fmtDate, fmtDateTime, todayParis, age, outcome, POSITIONS, initials, slugify, parseYmd };
 
 /** Écusson d'équipe : logo FFF si dispo, sinon initiales. */
+/* Couleur stable par équipe pour les écussons sans logo (initiales sur fond coloré) */
+const TEAM_COLORS = ['#C8102E', '#1E4FA3', '#B91C1C', '#3F3F46', '#15803D', '#1E3A8A', '#52525B', '#9F1239', '#166534', '#7C2D12', '#0F766E', '#6B21A8'];
+function teamColor(name) {
+  let h = 0;
+  for (const c of String(name || '')) h = (h * 31 + c.codePointAt(0)) >>> 0;
+  return TEAM_COLORS[h % TEAM_COLORS.length];
+}
+
 function badge(name, logo, { us = false, settings = {}, size = '' } = {}) {
   const cls = `badge${size ? ' badge--' + size : ''}${us ? ' badge--us' : ''}`;
   const src = us ? (settings.logo || '/static/img/crest.png') : logo;
-  if (src) return `<span class="${cls}"><img src="${escapeHtml(src)}" alt="" loading="lazy" onerror="this.parentNode.classList.add('badge--txt');this.remove()"><b>${escapeHtml(abbr(name))}</b></span>`;
-  return `<span class="${cls} badge--txt"><b>${escapeHtml(abbr(name))}</b></span>`;
+  const style = `style="--tc:${teamColor(name)}"`;
+  if (src) return `<span class="${cls}" ${style}><img src="${escapeHtml(src)}" alt="" loading="lazy" onerror="this.parentNode.classList.add('badge--txt');this.remove()"><b>${escapeHtml(abbr(name))}</b></span>`;
+  return `<span class="${cls} badge--txt" ${style}><b>${escapeHtml(abbr(name))}</b></span>`;
 }
 
 function abbr(name) {
@@ -94,6 +103,7 @@ function abbr(name) {
 }
 
 module.exports.badge = badge;
+module.exports.teamColor = teamColor;
 module.exports.abbr = abbr;
 
 function fmtPosted(iso) {

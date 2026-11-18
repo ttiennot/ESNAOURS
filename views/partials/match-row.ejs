@@ -10,12 +10,13 @@
     <div class="mr-score">
       <% if (m.status && m.home_score == null) { %><span class="tag tag--warn"><%= m.status %></span>
       <% } else if (m.home_score != null) { %><span class="score score--<%= res %>"><%= m.home_score %> – <%= m.away_score %></span>
-      <% } else { %><span class="vs">VS</span><% } %>
+      <% } else { %><span class="score score--vs">VS</span><% } %>
     </div>
     <div class="mr-team mr-away<%= !m.is_home ? ' is-us' : '' %>"><%- h.badge(m.away_team, m.away_logo, { us: !m.is_home, settings, size: 'sm' }) %><span class="mr-name"><%= m.away_team %></span></div>
   </div>
   <div class="mr-side">
-    <% if (res) { %><span class="pill pill--<%= res %>" title="<%= { V: 'Victoire', N: 'Nul', D: 'Défaite' }[res] %>"><%= res %></span><% } else { %><span class="mr-ha"><%= m.is_home ? 'Domicile' : 'Extérieur' %></span><% } %>
     <% if (typeof lineupIds !== 'undefined' && lineupIds.has(m.id)) { %><span class="tag">Compo</span><% } %>
+    <% if (res) { %><span class="out out--<%= res %>" title="<%= { V: 'Victoire', N: 'Nul', D: 'Défaite' }[res] %>"><%= res %></span>
+    <% } else { %><span class="venue venue--<%= m.is_home ? 'home' : 'away' %>"><%= m.is_home ? 'Domicile' : 'Extérieur' %></span><% } %>
   </div>
 </a>

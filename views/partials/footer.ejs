@@ -2,23 +2,32 @@
 <footer class="site-footer">
   <div class="wrap footer-inner">
     <div class="footer-brand">
-      <img src="<%= settings.logo || '/static/img/crest.png' %>" alt="" width="44">
-      <div><strong><%= settings.club_name %></strong><br><span><%= settings.competition_label %></span></div>
+      <img src="<%= settings.logo || '/static/img/crest.png' %>" alt="" width="52" height="52">
+      <div>
+        <strong>Étoile Sportive de Naours</strong>
+        <span><%= settings.team_label %> · <%= settings.competition_label %></span>
+      </div>
     </div>
-    <div class="footer-col">
-      <% if (settings.stadium) { %><div>📍 <%= settings.stadium %></div><% } %>
-      <% if (settings.address) { %><div><%= settings.address %></div><% } %>
-      <% if (settings.email) { %><div>✉️ <a href="mailto:<%= settings.email %>"><%= settings.email %></a></div><% } %>
-      <% if (settings.phone) { %><div>📞 <a href="tel:<%= settings.phone.replace(/\s/g, '') %>"><%= settings.phone %></a></div><% } %>
-    </div>
-    <div class="footer-col footer-social">
-      <% if (settings.facebook) { %><a href="<%= settings.facebook %>" rel="noopener" target="_blank">Facebook</a><% } %>
-      <% if (settings.instagram) { %><a href="<%= settings.instagram %>" rel="noopener" target="_blank">Instagram</a><% } %>
-      <a href="/admin" class="footer-admin">Espace dirigeants</a>
-    </div>
+    <nav class="footer-nav" aria-label="Liens de pied de page">
+      <a href="/calendrier">Calendrier</a>
+      <a href="/classement">Classement</a>
+      <a href="/effectif">Effectif</a>
+      <a href="/photos">Photos</a>
+      <a href="/club">Le club</a>
+    </nav>
   </div>
-  <div class="wrap footer-note">Résultats et classement : données officielles FFF, mises à jour automatiquement.</div>
+  <div class="wrap footer-contact">
+    <% if (settings.stadium || settings.address) { %><span><%= [settings.stadium, settings.address].filter(Boolean).join(' · ') %></span><% } %>
+    <% if (settings.email) { %><a href="mailto:<%= settings.email %>"><%= settings.email %></a><% } %>
+    <% if (settings.phone) { %><a href="tel:<%= settings.phone.replace(/\s/g, '') %>"><%= settings.phone %></a><% } %>
+    <% if (settings.facebook) { %><a href="<%= settings.facebook %>" rel="noopener" target="_blank">Facebook</a><% } %>
+    <% if (settings.instagram) { %><a href="<%= settings.instagram %>" rel="noopener" target="_blank">Instagram</a><% } %>
+  </div>
+  <div class="wrap footer-note">
+    <span>Résultats et classement : données officielles FFF.</span>
+    <a href="/admin" class="footer-admin">Espace dirigeants</a>
+  </div>
 </footer>
-<script src="/static/js/main.js?v=1" defer></script>
+<script src="/static/js/main.js?v=3" defer></script>
 </body>
 </html>

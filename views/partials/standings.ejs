@@ -2,19 +2,19 @@
 <div class="table-wrap">
 <table class="standings<%= full ? '' : ' standings--compact' %>">
   <thead><tr>
-    <th class="c-rank">#</th><th class="c-team">Équipe</th><th title="Points">Pts</th><th title="Joués">J</th>
-    <% if (full) { %><th title="Gagnés">G</th><th title="Nuls">N</th><th title="Perdus">P</th><th class="hide-sm" title="Forfaits">F</th><th class="hide-sm" title="Buts pour">BP</th><th class="hide-sm" title="Buts contre">BC</th><% } %>
-    <th title="Différence de buts">Diff</th>
+    <th class="c-rank" scope="col">#</th><th class="c-team" scope="col">Équipe</th><th scope="col" title="Points">Pts</th><th scope="col" title="Joués">J</th>
+    <% if (full) { %><th scope="col" title="Gagnés">G</th><th scope="col" title="Nuls">N</th><th scope="col" title="Perdus">P</th><th class="hide-sm" scope="col" title="Forfaits">F</th><th class="hide-sm" scope="col" title="Buts pour">BP</th><th class="hide-sm" scope="col" title="Buts contre">BC</th><% } %>
+    <th scope="col" title="Différence de buts">Diff</th>
   </tr></thead>
   <tbody>
   <% rows.forEach(r => { %>
     <tr class="<%= r.is_us ? 'is-us' : '' %>">
-      <td class="c-rank"><span><%= r.rank %></span></td>
-      <td class="c-team"><%- h.badge(r.team, r.logo, { us: !!r.is_us, settings, size: 'xs' }) %><span><%= r.team %></span></td>
-      <td class="c-pts"><strong><%= r.points %></strong></td>
-      <td><%= r.played %></td>
-      <% if (full) { %><td><%= r.won %></td><td><%= r.drawn %></td><td><%= r.lost %></td><td class="hide-sm"><%= r.forfeits %></td><td class="hide-sm"><%= r.goals_for %></td><td class="hide-sm"><%= r.goals_against %></td><% } %>
-      <td class="<%= r.goal_diff > 0 ? 'pos' : r.goal_diff < 0 ? 'neg' : '' %>"><%= r.goal_diff > 0 ? '+' : '' %><%= r.goal_diff %></td>
+      <td class="c-rank"><span class="rank<%= r.is_us ? ' rank--us' : r.rank === 1 ? ' rank--first' : '' %>"><%= r.rank %></span></td>
+      <td class="c-team"><span class="team-cell"><%- h.badge(r.team, r.logo, { us: !!r.is_us, settings, size: 'xs' }) %><span class="team-name"><%= r.team %></span></span></td>
+      <td class="c-pts"><%= r.points %></td>
+      <td class="c-num"><%= r.played %></td>
+      <% if (full) { %><td class="c-num"><%= r.won %></td><td class="c-num"><%= r.drawn %></td><td class="c-num"><%= r.lost %></td><td class="c-num hide-sm"><%= r.forfeits %></td><td class="c-num hide-sm"><%= r.goals_for %></td><td class="c-num hide-sm"><%= r.goals_against %></td><% } %>
+      <td class="c-diff<%= r.goal_diff < 0 ? ' neg' : '' %>"><%= r.goal_diff > 0 ? '+' : '' %><%= r.goal_diff %></td>
     </tr>
   <% }) %>
   </tbody>

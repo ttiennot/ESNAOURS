@@ -14,8 +14,18 @@ router.get('/', (req, res) => {
   // extrait du classement centré sur l'ES Naours
   let excerpt = standings.slice(0, 5);
   if (usIdx >= 4) excerpt = standings.slice(Math.max(0, usIdx - 2), usIdx + 3);
+  // rang de chaque équipe (affiché sous les écussons du prochain match)
+  const rankOf = Object.fromEntries(standings.map(s => [s.team, s.rank]));
+  const us0 = usIdx >= 0 ? standings[usIdx] : null;
+  let gap = null;
+  if (us0 && standings.length > 1) {
+    gap = us0.rank === 1
+      ? { label: 'Avance sur le 2e', pts: us0.points - standings[1].points }
+      : { label: 'Écart avec le 1er', pts: standings[0].points - us0.points };
+  }
   res.render('home', {
     title: null,
+    rankOf, gap, form: recentForm(),
     next,
     nextLineup: nextLineup && nextLineup.published ? hydrateLineup(nextLineup) : null,
     results: q.lastResults(5),

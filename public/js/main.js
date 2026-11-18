@@ -27,7 +27,7 @@
       if (Number.isNaN(diff)) { el.innerHTML = ''; return; }
       if (diff <= 0) { el.innerHTML = diff > -2 * 3600e3 ? '<div><b>⚽</b><span>En cours</span></div>' : ''; return; }
       const d = Math.floor(diff / 864e5), h = Math.floor(diff / 36e5) % 24, m = Math.floor(diff / 6e4) % 60, s = Math.floor(diff / 1e3) % 60;
-      el.innerHTML = [[d, 'jours'], [h, 'h'], [m, 'min'], [s, 's']]
+      el.innerHTML = [[d, 'jours'], [h, 'heures'], [m, 'min'], [s, 'sec']]
         .map(([v, l]) => `<div><b>${String(v).padStart(2, '0')}</b><span>${l}</span></div>`).join('');
     };
     render();
